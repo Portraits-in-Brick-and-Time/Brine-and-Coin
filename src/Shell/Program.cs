@@ -4,6 +4,11 @@ using NetAF.Logic;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using NetAF.Utilities;
+using Shell.Core;
+using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Components;
+using SoundFlow.Providers;
+using SoundFlow.Structs;
 using Velopack;
 using Velopack.Sources;
 
@@ -11,7 +16,7 @@ namespace BrineAndCoin;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         VelopackApp
                    .Build()
@@ -24,7 +29,22 @@ public class Program
                    CheckForUpdatesAsync();
 #endif
 
-        HelloWorldGame();
+
+using var intro = File.OpenRead("Assets/Voice/intro.mp3");
+using var engine = new MiniAudioEngine();
+var format = AudioFormat.DvdHq;
+using var playbackDevice = engine.InitializePlaybackDevice(null, format);
+
+using var dataProvider = new StreamDataProvider(engine, intro);
+var player = new SoundPlayer(engine, format, dataProvider);
+playbackDevice.MasterMixer.AddComponent(player);
+playbackDevice.Start();
+player.Play();
+        
+        var writer = new TypeWriter();
+        await writer.WriteAsync(File.ReadAllText("Assets/Texts/intro.txt"));
+
+      //  HelloWorldGame();
     }
     
     private static PlayableCharacter CreatePlayer()
