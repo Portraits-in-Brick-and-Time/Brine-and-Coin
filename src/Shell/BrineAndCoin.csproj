@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,7 +11,14 @@
 
   <ItemGroup>
     <PackageReference Include="NetAF" Version="3.8.6" />
+    <PackageReference Include="SoundFlow" Version="1.3.0" />
     <PackageReference Include="Velopack" Version="0.0.1298" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
