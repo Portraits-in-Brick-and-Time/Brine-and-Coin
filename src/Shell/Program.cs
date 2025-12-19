@@ -5,10 +5,10 @@ using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using NetAF.Utilities;
 using Shell.Core;
+using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Components;
-using SoundFlow.Providers;
 using SoundFlow.Structs;
+using Splat;
 using Velopack;
 using Velopack.Sources;
 
@@ -29,22 +29,18 @@ public class Program
                    CheckForUpdatesAsync();
 #endif
 
+        var engine = new MiniAudioEngine();
+        var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
+        playbackDevice.Start();
 
-using var intro = File.OpenRead("Assets/Voice/intro.mp3");
-using var engine = new MiniAudioEngine();
-var format = AudioFormat.DvdHq;
-using var playbackDevice = engine.InitializePlaybackDevice(null, format);
+        Locator.CurrentMutable.RegisterConstant<MiniAudioEngine>(engine);
+        Locator.CurrentMutable.RegisterConstant<AudioPlaybackDevice>(playbackDevice);
+        Locator.CurrentMutable.Register<TypeWriter>(() => new TypeWriter(engine, playbackDevice));
 
-using var dataProvider = new StreamDataProvider(engine, intro);
-var player = new SoundPlayer(engine, format, dataProvider);
-playbackDevice.MasterMixer.AddComponent(player);
-playbackDevice.Start();
-player.Play();
-        
-        var writer = new TypeWriter();
-        await writer.WriteAsync(File.ReadAllText("Assets/Texts/intro.txt"));
+        var writer = Locator.Current.GetService<TypeWriter>()!;
+        await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 
-      //  HelloWorldGame();
+        //  HelloWorldGame();
     }
     
     private static PlayableCharacter CreatePlayer()

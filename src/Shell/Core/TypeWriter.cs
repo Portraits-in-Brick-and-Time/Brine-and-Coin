@@ -1,12 +1,22 @@
+using System.Text.RegularExpressions;
+using SoundFlow.Abstracts;
+using SoundFlow.Abstracts.Devices;
+using SoundFlow.Components;
+using SoundFlow.Providers;
+
 namespace Shell.Core;
 
 public class TypeWriter
 {
-    private readonly int _baseDelay;
+    private readonly int _baseDelay = 250;
+    private int _delayModifier = 0;
+    private AudioEngine _engine;
+    private AudioPlaybackDevice _playbackDevice;
 
-    public TypeWriter(int baseDelay = 250)
+    public TypeWriter(AudioEngine engine, AudioPlaybackDevice playbackDevice)
     {
-        _baseDelay = baseDelay;
+        _engine = engine;
+        _playbackDevice = playbackDevice;
     }
 
     public async Task WriteAsync(string text)
@@ -21,34 +31,44 @@ public class TypeWriter
             {
                 Console.Write(c);
                 i++;
-                await Task.Delay(_baseDelay);
+                await Task.Delay(Math.Max(_baseDelay + _delayModifier, 0));
                 continue;
             }
-            if (c == '.' || c == ',' || c == '\n')
+            if (c is '.' or ',')
             {
                 Console.Write(c);
                 i++;
-                await Task.Delay(_baseDelay * 3);
+                await Task.Delay(_baseDelay * 3 + _delayModifier);
                 continue;
             }
 
-            if (c == '-')
+            var match = Regex.Match(text[i..], @"^\[(-?\d+)\]");
+            if (match.Success)
             {
-                int dashCount = 0;
-
-                // zähle aufeinanderfolgende '-'
-                while (i < text.Length && text[i] == '-')
-                {
-                    dashCount++;
-                    i++;
-                }
-
-                await Task.Delay(_baseDelay * dashCount);
+                _delayModifier = int.Parse(match.Groups[1].Value);
+                i += match.Length;
+                if (text[i] == ' ') i++;
                 continue;
             }
 
             Console.Write(c);
             i++;
         }
+    }
+    
+    public async Task PlayAsync(string textFilename, string audioFilename) {
+        var audio = File.OpenRead(audioFilename);
+        var dataProvider = new StreamDataProvider(_engine, audio);
+        var player = new SoundPlayer(_engine, _playbackDevice.Format, dataProvider);
+        _playbackDevice.MasterMixer.AddComponent(player);
+        player.Play();
+        player.PlaybackEnded += (sender, args) =>
+        {
+            _playbackDevice.MasterMixer.RemoveComponent(player);
+            dataProvider.Dispose();
+            audio.Dispose();
+        };
+        
+        await WriteAsync(File.ReadAllText(textFilename));
     }
 }

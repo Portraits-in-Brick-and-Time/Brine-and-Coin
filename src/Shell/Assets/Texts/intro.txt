@@ -1,10 +1,7 @@
-The city smells of brine and smoke.-
+The city smells of brine and smoke.
 Beneath your feet, deep below stone and timber, salt is drawn from the earth — the white gold that feeds fortunes, fuels ambition, and binds the fate of an entire city. Coins change hands in shadowed alleys, oaths are sworn in council halls, and every drop of brine carries a story.
 
-You are not a hero of legend.
-You are a witness.
-
-Walk the streets of Schwäbisch Hall at a time when salt decides who rises and who falls. Listen to merchants, workers, clergy, and rulers. Their voices linger in walls, wells, and market squares — echoes of choices made long ago.
+You are not a hero of legend. You are a witness. Walk the streets of Schwäbisch Hall [-100] at a time when salt decides who rises and who falls. Listen to merchants, workers, clergy, and rulers. [50] Their voices linger in walls, wells, and market squares echoes of choices made long ago.
 
 Every decision you take uncovers another layer of the city’s past.
 Some stories were celebrated.
