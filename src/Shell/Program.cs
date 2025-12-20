@@ -85,7 +85,7 @@ public class Program
         // - the conditions that end the game
         // - the configuration for the game
         var gameCreator = Game.Create(
-                        new GameInfo("Portnaots in Brick and Time - Brine and Coin", "Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.", "Chris Anders"),
+                        new GameInfo("Portraits in Brick and Time - Brine and Coin", "Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.", "Chris Anders"),
                         "",
                         AssetGenerator.Custom(overworldMaker.Make, CreatePlayer),
                         new GameEndConditions(IsGameComplete, IsGameOver),
