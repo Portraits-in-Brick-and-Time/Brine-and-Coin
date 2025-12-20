@@ -40,7 +40,8 @@ public class Program
         var writer = Locator.Current.GetService<TypeWriter>()!;
         await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 
-        //  HelloWorldGame();
+        HelloWorldGame();
+        Console.Clear();
     }
     
     private static PlayableCharacter CreatePlayer()
@@ -85,7 +86,7 @@ public class Program
         // - the configuration for the game
         var gameCreator = Game.Create(
                         new GameInfo("Portnaots in Brick and Time - Brine and Coin", "Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.", "Chris Anders"),
-                        "Dave awakes to find himself in a cavern...",
+                        "",
                         AssetGenerator.Custom(overworldMaker.Make, CreatePlayer),
                         new GameEndConditions(IsGameComplete, IsGameOver),
                         new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(80, 50)));
