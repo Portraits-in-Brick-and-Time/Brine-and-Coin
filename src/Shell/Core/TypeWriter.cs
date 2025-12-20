@@ -38,7 +38,7 @@ public class TypeWriter
             {
                 Console.Write(c);
                 i++;
-                await Task.Delay(_baseDelay * 3 + _delayModifier);
+                await Task.Delay((_baseDelay * 3) + _delayModifier);
                 continue;
             }
 
