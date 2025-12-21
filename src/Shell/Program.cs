@@ -34,11 +34,11 @@ public class Program
         var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
         playbackDevice.Start();
 
+        var writer = new TypeWriter(engine, playbackDevice);
         Locator.CurrentMutable.RegisterConstant<MiniAudioEngine>(engine);
         Locator.CurrentMutable.RegisterConstant<AudioPlaybackDevice>(playbackDevice);
-        Locator.CurrentMutable.Register<TypeWriter>(() => new TypeWriter(engine, playbackDevice));
+        Locator.CurrentMutable.RegisterConstant<TypeWriter>(writer);
 
-        var writer = Locator.Current.GetService<TypeWriter>()!;
         await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 
         Console.Clear();
