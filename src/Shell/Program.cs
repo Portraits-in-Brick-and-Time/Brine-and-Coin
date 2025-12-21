@@ -8,6 +8,7 @@ using Shell.Core;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Structs;
+using Spectre.Console;
 using Splat;
 using Velopack;
 using Velopack.Sources;
@@ -95,17 +96,25 @@ public class Program
         GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
     }
 
-    private static async void CheckForUpdatesAsync()
+    private static void CheckForUpdatesAsync()
     {
-        var mgr = new UpdateManager(new GithubSource("https://github.com/Portraits-in-Brick-and-Time/Brine-and-Coin", null, false));
-
-        var newVersion = await mgr.CheckForUpdatesAsync();
-        if (newVersion == null)
-            return;
-
-        //ToDo: add ui for downloading updates
-        await mgr.DownloadUpdatesAsync(newVersion);
-
-        mgr.ApplyUpdatesAndRestart(newVersion);
+        AnsiConsole.Progress()
+            .Start(async ctx => 
+            {
+                var mgr = new UpdateManager(new GithubSource("https://github.com/Portraits-in-Brick-and-Time/Brine-and-Coin", null, false));
+        
+                var newVersion = await mgr.CheckForUpdatesAsync();
+                if (newVersion == null)
+                    return;
+                    
+                var task1 = ctx.AddTask("Downloading Updates");
+    
+                await mgr.DownloadUpdatesAsync(newVersion, progress =>
+                {
+                    task1.Increment(progress);
+                });
+        
+                mgr.ApplyUpdatesAndRestart(newVersion);
+            });
     }
 }
