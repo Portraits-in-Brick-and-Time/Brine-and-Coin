@@ -91,7 +91,7 @@ public class Program
                         "",
                         AssetGenerator.Custom(overworldMaker.Make, CreatePlayer),
                         new GameEndConditions(IsGameComplete, IsGameOver),
-                        new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30)));
+                        new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene));
         
         GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
     }
