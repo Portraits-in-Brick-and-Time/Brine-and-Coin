@@ -1,6 +1,7 @@
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Logic;
+using NetAF.Persistence;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using NetAF.Utilities;
@@ -79,13 +80,6 @@ public class Program
         
         // create overworld maker. the overworld maker simplifies creating in game overworlds. an overworld contains a series or regions
         var overworldMaker = new OverworldMaker("Daves World", "An ancient kingdom.", regionMaker);
-        
-        // create the callback for generating new instances of the game
-        // - information about the game
-        // - an introduction to the game, displayed at the star
-        // - asset generation for the overworld and the player
-        // - the conditions that end the game
-        // - the configuration for the game
         var gameCreator = Game.Create(
                         new GameInfo("Portraits in Brick and Time - Brine and Coin", "Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.", "Chris Anders"),
                         "",
