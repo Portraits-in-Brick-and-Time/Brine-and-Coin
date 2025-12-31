@@ -4,17 +4,18 @@ using System.IO;
 using Hocon;
 using LibObjectFile.Elf;
 using MessagePack;
+using NetAF.Assets;
+using NetAF.Assets.Characters;
 using ObjectModel.Models;
 using ObjectModel.Sections;
 
 public class GameAssetWriter : IDisposable
 {
     private readonly MemoryStream _codeStream = new();
-    private readonly ElfFile _file = new(ElfArch.ARM);
+    private readonly ElfFile _file = new(ElfArch.X86_64);
     private readonly Stream _outputStream;
     private readonly ElfStringTable _strTable = new();
     private readonly ElfSymbolTable _symbolTable = new();
-    private ElfSection _objectsSection;
     private readonly CustomSections _customSections;
 
     public GameAssetWriter(Stream outputStream)
@@ -22,23 +23,14 @@ public class GameAssetWriter : IDisposable
         _outputStream = outputStream;
 
         _file.Add(_strTable);
+        _file.FileType = ElfFileType.Core;
+        _file.Encoding = ElfEncoding.Lsb;
+        _file.Version = 1;
 
         _customSections = new(_file);
     }
 
     public bool IsClosed { get; set; }
-
-    public void WriteObject(GameObject obj)
-    {
-        if (IsClosed)
-        {
-            return;
-        }
-
-        var start = (ulong)_codeStream.Position;
-        MessagePackSerializer.Serialize(_codeStream, obj);
-        AddSymbol(obj.Name, start, (ulong)_codeStream.Position - start);
-    }
 
     public void WriteObjects(string defintiionFile)
     {
@@ -57,13 +49,13 @@ public class GameAssetWriter : IDisposable
                 var isNPC = obj.GetField("isNPC").GetString() == "true";
                 var model = new CharacterModel(name, description, isNPC);
                 ApplyAttributes(obj, model);
-                WriteObject(model);
+                _customSections.CharactersSection.Characters.Add(model.Instanciate() as Character);
             }
             else if (type is "item")
             {
                 var model = new ItemModel(name, description);
                 ApplyAttributes(obj, model);
-                _customSections.ItemsSection.Items.Add(model.ToItem());
+                _customSections.ItemsSection.Items.Add((Item)model.Instanciate());
                 continue;
             }
 
@@ -113,40 +105,12 @@ public class GameAssetWriter : IDisposable
         }
     }
 
-    private void AddSymbol(string name, ulong index, ulong size, ElfSection section = null)
-    {
-        foreach (var symbol in _symbolTable.Entries)
-        {
-            if (symbol.Name == name)
-            {
-                return;
-            }
-        }
-
-        _symbolTable.Entries.Add(
-            new ElfSymbol()
-            {
-                Bind = ElfSymbolBind.Global,
-                Name = name,
-                Value = index,
-                Type = ElfSymbolType.Object,
-                Size = size,
-                SectionLink = section ?? _objectsSection
-            });
-    }
-
     public void Close()
     {
         if (IsClosed)
         {
             return;
         }
-
-        _objectsSection = new ElfStreamSection(ElfSectionSpecialType.Text, _codeStream)
-        {
-            Name = ".objects",
-            Flags = ElfSectionFlags.None
-        };
 
         _customSections.Write(_symbolTable);
 
@@ -156,7 +120,6 @@ public class GameAssetWriter : IDisposable
         _file.Add(new ElfSectionHeaderTable());
 
         _file.Add(_symbolTable);
-        _file.Add(_objectsSection);
 
         _file.Write(_outputStream);
 

@@ -23,7 +23,7 @@ public abstract class CustomSection(ElfFile file)
         Section = new ElfStreamSection(ElfSectionSpecialType.Data, new MemoryStream())
         {
             Name = Name,
-            Flags = ElfSectionFlags.None
+            Flags = ElfSectionFlags.Alloc | ElfSectionFlags.Group | ElfSectionFlags.Compressed
         };
         File.Add(Section);
     }

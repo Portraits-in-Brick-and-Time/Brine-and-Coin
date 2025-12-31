@@ -25,9 +25,4 @@ public class ItemModel : GameObject
     {
         return new ItemModel(item.Identifier.Name, item.Description.GetDescription());
     }
-
-    public Item ToItem()
-    {
-        return new Item(Name, Description);
-    }
 }

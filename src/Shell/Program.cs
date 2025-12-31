@@ -1,3 +1,4 @@
+using LibObjectFile.Elf;
 using NetAF.Assets;
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
@@ -38,35 +39,16 @@ public class Program
         objectWriter.Close();
 
         var reader = new GameAssetReader(File.OpenRead("Assets/characters.elf"));
-
-        while (reader.HasObject)
-        {
-            var obj = reader.ReadObject();
-
-            if (obj is Character c)
-            {
-                Console.WriteLine($"{c.Identifier}: {obj.GetType().Name}");
-            }
-            else if (obj is Item item)
-            {
-                Console.WriteLine($"{item.Identifier}: {item.Description.GetDescription()}");
-            }
-
-            System.Console.WriteLine("\tAttributes:");
-            foreach (var attr in obj.Attributes.GetAsDictionary())
-            {
-                Console.WriteLine($"\t - {attr.Key.Name}: {attr.Value}");
-            }
-        }
+        reader.File.Print(Console.Out);
 
         var engine = new MiniAudioEngine();
         var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
         playbackDevice.Start();
 
         var writer = new TypeWriter(engine, playbackDevice);
-        Locator.CurrentMutable.RegisterConstant<MiniAudioEngine>(engine);
-        Locator.CurrentMutable.RegisterConstant<AudioPlaybackDevice>(playbackDevice);
-        Locator.CurrentMutable.RegisterConstant<TypeWriter>(writer);
+        Locator.CurrentMutable.RegisterConstant(engine);
+        Locator.CurrentMutable.RegisterConstant(playbackDevice);
+        Locator.CurrentMutable.RegisterConstant(writer);
 
         await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 

@@ -4,9 +4,6 @@ using ObjectModel.Sections;
 
 namespace ObjectModel.Models;
 
-[Union(0, typeof(Models.CharacterModel))]
-[Union(1, typeof(Models.ItemModel))]
-[MessagePackObject]
 public abstract class GameObject
 {
     [Key(0)]

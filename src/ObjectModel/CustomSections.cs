@@ -8,17 +8,21 @@ public class CustomSections
     public AttributesSection AttributesSection { get; }
     public ItemsSection ItemsSection { get; }
 
+    public CharactersSection CharactersSection { get; }
+
     private CustomSection[] _allSections;
 
     public CustomSections(ElfFile file)
     {
         AttributesSection = new(file);
         ItemsSection = new(file);
+        CharactersSection = new(file);
 
         _allSections =
         [
             AttributesSection,
-            ItemsSection
+            ItemsSection,
+            CharactersSection
         ];
     }
 

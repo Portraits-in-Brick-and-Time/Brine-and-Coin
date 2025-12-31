@@ -35,4 +35,9 @@ public class CharacterModel : GameObject {
     
         return c;
     }
+
+    public static CharacterModel FromCharacter(Character character)
+    {
+        return new CharacterModel(character.Identifier.Name, character.Description.GetDescription(), character is NonPlayableCharacter);
+    }
 }
