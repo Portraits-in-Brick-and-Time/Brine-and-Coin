@@ -10,9 +10,8 @@ using ObjectModel.Models;
 
 public class GameAssetReader
 {
-    private ElfStreamSection _objectsSection;
     private ElfFile _file;
-    private Stream _strm;
+
     public readonly ElfSymbolTable SymbolTable;
     public readonly CustomSections CustomSections;
 
@@ -21,7 +20,6 @@ public class GameAssetReader
     public GameAssetReader(Stream strm)
     {
         _file = ElfFile.Read(strm);
-        _strm = strm;
 
         SymbolTable = (ElfSymbolTable)File.Sections.First(_ => _ is ElfSymbolTable);
 

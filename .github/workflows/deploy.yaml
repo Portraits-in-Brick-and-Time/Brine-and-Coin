@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     env:
       PROJECT_FILE: src/Shell/BrineAndCoin.csproj
-      UNIQUE_IDENTIFIER: Brine and Coin
+      UNIQUE_IDENTIFIER: Brine_and_Coin
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -34,4 +34,5 @@ jobs:
           dotnet tool install -g vpk
           vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
           vpk pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe
+          vpk [linux] pack --runtime linux-x64 -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin
           vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "Brine and Coin ${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
