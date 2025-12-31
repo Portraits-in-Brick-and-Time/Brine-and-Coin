@@ -1,10 +1,10 @@
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Logic;
-using NetAF.Persistence;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using NetAF.Utilities;
+using ObjectModel;
 using Shell.Core;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
@@ -31,6 +31,20 @@ public class Program
                    CheckForUpdatesAsync();
 #endif
 
+        var elf = File.OpenWrite("Assets/characters.elf");
+        var objectWriter = new GameObjectWriter(elf);
+        objectWriter.WriteObjects("Assets/Definitions/characters.conf");
+        objectWriter.Close();
+
+        var reader = new GameObjectReader(File.OpenRead("Assets/characters.elf"));
+
+        while (reader.HasObject)
+        {
+            var obj = reader.ReadObject();
+            Console.WriteLine($"Read object: {obj!.Name}");
+            Console.WriteLine($"Read object type: {obj!.Instanciate().GetType().Name}");
+        }
+
         var engine = new MiniAudioEngine();
         var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
         playbackDevice.Start();
@@ -46,28 +60,28 @@ public class Program
         HelloWorldGame();
         Console.Clear();
     }
-    
+
     private static PlayableCharacter CreatePlayer()
     {
         return new PlayableCharacter("Dave", "A young boy on a quest to find the meaning of life.");
     }
-    
+
     private static EndCheckResult IsGameComplete(Game game)
     {
         if (!game.Player.FindItem("Holy Grail", out _))
             return EndCheckResult.NotEnded;
-    
+
         return new EndCheckResult(true, "Game Complete", "You have the Holy Grail!");
     }
-    
+
     private static EndCheckResult IsGameOver(Game game)
     {
         if (game.Player.IsAlive)
             return EndCheckResult.NotEnded;
-    
+
         return new EndCheckResult(true, "Game Over", "You died!");
     }
-    
+
     static void HelloWorldGame()
     {
         Console.Clear();
@@ -77,7 +91,7 @@ public class Program
             // add a room to the region at position x 0, y 0, z 0
             [0, 0, 0] = new Room("Cavern", "A dark cavern set in to the base of the mountain.")
         };
-        
+
         // create overworld maker. the overworld maker simplifies creating in game overworlds. an overworld contains a series or regions
         var overworldMaker = new OverworldMaker("Daves World", "An ancient kingdom.", regionMaker);
         var gameCreator = Game.Create(
@@ -86,28 +100,28 @@ public class Program
                         AssetGenerator.Custom(overworldMaker.Make, CreatePlayer),
                         new GameEndConditions(IsGameComplete, IsGameOver),
                         new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene));
-        
+
         GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
     }
 
     private static void CheckForUpdatesAsync()
     {
         AnsiConsole.Progress()
-            .Start(async ctx => 
+            .Start(async ctx =>
             {
                 var mgr = new UpdateManager(new GithubSource("https://github.com/Portraits-in-Brick-and-Time/Brine-and-Coin", null, false));
-        
+
                 var newVersion = await mgr.CheckForUpdatesAsync();
                 if (newVersion == null)
                     return;
-                    
+
                 var task1 = ctx.AddTask("Downloading Updates");
-    
+
                 await mgr.DownloadUpdatesAsync(newVersion, progress =>
                 {
                     task1.Increment(progress);
                 });
-        
+
                 mgr.ApplyUpdatesAndRestart(newVersion);
             });
     }
