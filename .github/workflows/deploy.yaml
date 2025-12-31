@@ -1,0 +1,37 @@
+name: Deploy to GitHub Releases
+
+permissions:
+  contents: write
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-to-github-releases:
+    runs-on: windows-latest
+    env:
+      PROJECT_FILE: src/Shell/BrineAndCoin.csproj
+      UNIQUE_IDENTIFIER: furesoft.brineandcoin
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Get Version from Project File
+        id: get-version
+        shell: bash
+        run: echo "version=$(grep -oE '<Version>[^<]+' $PROJECT_FILE | sed 's/<Version>//')" >> $GITHUB_OUTPUT
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish Application
+        shell: bash
+        run: |
+          echo "Using project file: $PROJECT_FILE"
+          dotnet publish "$PROJECT_FILE" -c Release -o publish -r win-x64 --self-contained true
+      - name: Create Velopack Release
+        run: |
+          dotnet tool install -g vpk
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+          vpk pack -u ${{ env.UNIQUE_IDENTIFIER }} -v ${{ steps.get-version.outputs.version }} -p publish --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe
+          vpk upload github --repoUrl https://github.com/${{ github.repository }} --publish --releaseName "Brine and Coin ${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
