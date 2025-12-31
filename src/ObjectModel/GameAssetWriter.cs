@@ -11,7 +11,6 @@ using ObjectModel.Sections;
 
 public class GameAssetWriter : IDisposable
 {
-    private readonly MemoryStream _codeStream = new();
     private readonly ElfFile _file = new(ElfArch.X86_64);
     private readonly Stream _outputStream;
     private readonly ElfStringTable _strTable = new();
@@ -118,16 +117,27 @@ public class GameAssetWriter : IDisposable
 
         _file.Add(new ElfSectionHeaderStringTable());
         _file.Add(new ElfSectionHeaderTable());
-
         _file.Add(_symbolTable);
+        Verify();
 
         _file.Write(_outputStream);
 
         _outputStream.Flush();
         _outputStream.Close();
-        _codeStream.Close();
 
         IsClosed = true;
+    }
+
+    private void Verify()
+    {
+        var diagnostics = _file.Verify();
+        if (diagnostics.HasErrors)
+        {
+            foreach (var message in diagnostics.Messages)
+            {
+                Console.WriteLine(message);
+            }
+        }
     }
 
     public void Dispose()

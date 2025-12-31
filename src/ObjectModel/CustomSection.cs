@@ -20,11 +20,12 @@ public abstract class CustomSection(ElfFile file)
         _symbolTable = symbolTable;
         CustomSections = customSections;
 
-        Section = new ElfStreamSection(ElfSectionSpecialType.Data, new MemoryStream())
+        Section = new ElfStreamSection(ElfSectionSpecialType.Text, new MemoryStream())
         {
             Name = Name,
             Flags = ElfSectionFlags.Alloc | ElfSectionFlags.Group | ElfSectionFlags.Compressed
         };
+        
         File.Add(Section);
     }
     
