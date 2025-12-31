@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     env:
       PROJECT_FILE: src/Shell/BrineAndCoin.csproj
-      UNIQUE_IDENTIFIER: furesoft.brineandcoin
+      UNIQUE_IDENTIFIER: Brine and Coin
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
