@@ -6,14 +6,14 @@ namespace ObjectModel.Sections;
 
 public class AttributesSection(ElfFile file) : CustomSection(file)
 {
-    public Dictionary<string, NetAF.Assets.Attributes.Attribute> Attributes { get; } = [];
+    public List<NetAF.Assets.Attributes.Attribute> Attributes { get; } = [];
 
     public override string Name => ".attributes";
 
     protected override void Write(BinaryWriter writer)
     {
         writer.Write(Attributes.Count);
-        foreach (var (_, attribute) in Attributes)
+        foreach (var attribute in Attributes)
         {
             var model = AttributeModel.FromAttribute(attribute);
             writer.Write(MessagePackSerializer.Serialize(model));
@@ -26,7 +26,20 @@ public class AttributesSection(ElfFile file) : CustomSection(file)
         for (var i = 0; i < count; i++)
         {
             var model = MessagePackSerializer.Deserialize<AttributeModel>(reader.BaseStream);
-            Attributes.Add(model.Name, model.ToAttribute());
+            Attributes.Add(model.ToAttribute());
         }
+    }
+
+    public int IndexOf(string name)
+    {
+        for (var i = 0; i < Attributes.Count; i++)
+        {
+            if (Attributes[i].Name == name)
+            {
+                return i;
+            }
+        }
+
+        throw new KeyNotFoundException($"Attribute '{name}' not found.");
     }
 }

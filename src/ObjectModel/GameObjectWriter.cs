@@ -43,25 +43,44 @@ public class GameAssetWriter : IDisposable
     public void WriteObjects(string defintiionFile)
     {
         var config = HoconParser.Parse(File.ReadAllText(defintiionFile));
+        WriteAttributeDefinitions(config);
 
-        foreach (var (name, def) in config.AsEnumerable())
+        foreach (var (name, def) in config.AsEnumerable().Where(_ => _.Key is not "attributes"))
         {
             var obj = def.GetObject();
 
+            var type = obj.GetField("type").GetString();
+            GameObject model = null;
+            if (type is "character")
+            {
+                var description = obj.GetField("description").GetString();
+                var isNPC = obj.GetField("isNPC").GetString() == "true";
+                model = new CharacterModel(name, description, isNPC);
+            }
+
+            ApplyAttributes(obj, model);
+            WriteObject(model);
+        }
+    }
+
+    private void WriteAttributeDefinitions(HoconRoot config)
+    {
+        foreach (var (name, def) in config.AsEnumerable())
+        {
             if (name is "attributes")
             {
                 WriteAttributes(def);
                 continue;
             }
+        }
+    }
 
-            var type = obj.GetField("type").GetString();
-            if (type is "character")
-            {
-                var description = obj.GetField("description").GetString();
-                var isNPC = obj.GetField("isNPC").GetString() == "true";
-
-                WriteObject(new CharacterModel(name, description, isNPC));
-            }
+    private void ApplyAttributes(HoconObject obj, GameObject model)
+    {
+        foreach (var (attrName, attrValue) in obj.GetField("attributes").GetObject().AsEnumerable())
+        {
+            var attrIndex = _attributesSection.IndexOf(attrName);
+            model.Attributes.Add(new IndexedRef(attrIndex), int.Parse(attrValue.GetString()));
         }
     }
 
@@ -70,6 +89,7 @@ public class GameAssetWriter : IDisposable
         foreach (var (attrName, attrDef) in def.GetObject().AsEnumerable())
         {
             var obj = attrDef.GetObject();
+            
             var attribute = new NetAF.Assets.Attributes.Attribute(attrName,
                  obj.GetField("description").GetString(),
                 int.Parse(obj.GetField("min").GetString()),
@@ -77,7 +97,7 @@ public class GameAssetWriter : IDisposable
                  obj.GetField("visible").GetString() == "true"
             );
 
-            _attributesSection.Attributes.Add(attrName, attribute);
+            _attributesSection.Attributes.Add(attribute);
         }
     }
 

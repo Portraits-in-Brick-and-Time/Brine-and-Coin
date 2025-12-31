@@ -41,7 +41,17 @@ public class Program
         while (reader.HasObject)
         {
             var obj = reader.ReadObject();
-            Console.WriteLine($"{obj!.Name}: {obj!.Instanciate().GetType().Name}");
+
+            if (obj is Character c)
+            {
+                Console.WriteLine($"{c.Identifier}: {obj.GetType().Name}");
+            }
+
+            System.Console.WriteLine("\tAttributes:");
+            foreach (var attr in obj.Attributes.GetAsDictionary())
+            {
+                Console.WriteLine($"\t - {attr.Key.Name}: {attr.Value}");
+            }
         }
 
         var engine = new MiniAudioEngine();

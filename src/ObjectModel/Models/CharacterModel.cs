@@ -1,9 +1,8 @@
 using MessagePack;
+using NetAF.Assets;
 using NetAF.Assets.Characters;
 
 namespace ObjectModel.Models;
-
-#nullable disable
 
 [MessagePackObject]
 public class CharacterModel : GameObject {
@@ -18,13 +17,13 @@ public class CharacterModel : GameObject {
 	
     }
 
-    [Key(1)]
+    [Key(2)]
     public string Description { get; set; }
     
-    [Key(2)]
+    [Key(3)]
     public bool IsNPC { get; set; }
 
-    public override object Instanciate()
+    public override IExaminable Instanciate()
     {
         Character c;
         if (IsNPC)
@@ -35,9 +34,7 @@ public class CharacterModel : GameObject {
         {
             c = new PlayableCharacter(Name, Description);
         }
-        
-        //c.Attributes.Add(new NetAF.Assets.Attributes.Attribute())
-        
+    
         return c;
     }
 }

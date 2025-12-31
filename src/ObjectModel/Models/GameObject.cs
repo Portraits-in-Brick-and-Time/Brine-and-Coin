@@ -1,4 +1,6 @@
 using MessagePack;
+using NetAF.Assets;
+using ObjectModel.Sections;
 
 namespace ObjectModel.Models;
 
@@ -9,11 +11,16 @@ public abstract class GameObject
     [Key(0)]
     public string Name { get; set; }
 
-    public abstract object Instanciate();
+    [Key(1)]
+    public Dictionary<IndexedRef, int> Attributes { get; set; } = [];
 
-    public TOutput? Instanciate<TOutput>()
-        where TOutput : class
+    public abstract IExaminable Instanciate();
+
+    public void InstanciateAttributesTo(IExaminable target, AttributesSection attributesSection)
     {
-        return Instanciate() as TOutput;
+        foreach (var (key, value) in Attributes)
+        {
+            target.Attributes.Add(attributesSection.Attributes[key.Index].Name, value);
+        }
     }
 }

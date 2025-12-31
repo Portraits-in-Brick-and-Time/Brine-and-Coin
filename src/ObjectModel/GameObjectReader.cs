@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using LibObjectFile.Elf;
 using MessagePack;
+using NetAF.Assets;
+using NetAF.Assets.Locations;
 using ObjectModel.Models;
 using ObjectModel.Sections;
 
@@ -45,17 +47,20 @@ public class GameAssetReader : IDisposable
         Close();
     }
 
-    public GameObject? ReadObject()
+    public IExaminable ReadObject()
     {
         if (IsClosed || _strm!.Position == _strm.Length)
         {
             return null;
         }
 
-        var instance = MessagePackSerializer.Deserialize<GameObject>(_objectsSection!.Stream);
+        var obj = MessagePackSerializer.Deserialize<GameObject>(_objectsSection!.Stream);
 
         _objectIndex++;
 
+        var instance = obj.Instanciate();
+        obj.InstanciateAttributesTo(instance, _attributesSection);
+        
         return instance;
     }
 }
