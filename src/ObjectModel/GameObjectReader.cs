@@ -7,22 +7,26 @@ using System.Linq;
 using LibObjectFile.Elf;
 using MessagePack;
 using ObjectModel.Models;
+using ObjectModel.Sections;
 
-public class GameObjectReader : IDisposable
+public class GameAssetReader : IDisposable
 {
     private ElfStreamSection? _objectsSection;
     private ElfFile? _file;
     private int _objectIndex;
     private Stream? _strm;
-    private ElfSymbolTable? _symTable;
+    private readonly ElfSymbolTable? _symTable;
+    private readonly AttributesSection? _attributesSection;
 
-    public GameObjectReader(Stream strm)
+    public GameAssetReader(Stream strm)
     {
         _file = ElfFile.Read(strm);
         _strm = strm;
 
         _symTable = (ElfSymbolTable)_file.Sections.First(_ => _ is ElfSymbolTable);
-        _objectsSection = (ElfStreamSection)_file.Sections.First(_ => _ is ElfStreamSection && _.Name.Value == ".objects");
+        _objectsSection = (ElfStreamSection)_file.Sections.First(_ => _.Name.Value == ".objects");
+        _attributesSection = new((ElfStreamSection)_file.Sections.First(_ => _.Name.Value == ".attributes"));
+        _attributesSection.Read();
     }
 
     public int Count => _symTable!.Entries.Count(s => s.Type == ElfSymbolType.Object);
@@ -33,7 +37,6 @@ public class GameObjectReader : IDisposable
     {
         _file = null;
         IsClosed = true;
-        _symTable = null;
         _strm = null;
         _objectsSection = null;
     }

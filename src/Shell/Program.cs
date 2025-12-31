@@ -32,11 +32,11 @@ public class Program
 #endif
 
         var elf = File.OpenWrite("Assets/characters.elf");
-        var objectWriter = new GameObjectWriter(elf);
+        var objectWriter = new GameAssetWriter(elf);
         objectWriter.WriteObjects("Assets/Definitions/characters.conf");
         objectWriter.Close();
 
-        var reader = new GameObjectReader(File.OpenRead("Assets/characters.elf"));
+        var reader = new GameAssetReader(File.OpenRead("Assets/characters.elf"));
 
         while (reader.HasObject)
         {

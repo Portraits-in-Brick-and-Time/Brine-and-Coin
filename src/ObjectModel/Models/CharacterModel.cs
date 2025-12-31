@@ -27,12 +27,16 @@ public class CharacterModel : GameObject {
     public override object Instanciate()
     {
         Character c;
-        if (IsNPC) {
+        if (IsNPC)
+        {
             c = new NonPlayableCharacter(Name, Description);
         }
-        else {
+        else
+        {
             c = new PlayableCharacter(Name, Description);
         }
+        
+        //c.Attributes.Add(new NetAF.Assets.Attributes.Attribute())
         
         return c;
     }
