@@ -5,6 +5,7 @@ using ObjectModel.Sections;
 namespace ObjectModel.Models;
 
 [Union(0, typeof(Models.CharacterModel))]
+[Union(1, typeof(Models.ItemModel))]
 [MessagePackObject]
 public abstract class GameObject
 {
@@ -12,6 +13,9 @@ public abstract class GameObject
     public string Name { get; set; }
 
     [Key(1)]
+    public string Description { get; set; }
+
+    [Key(2)]
     public Dictionary<IndexedRef, int> Attributes { get; set; } = [];
 
     public abstract IExaminable Instanciate();

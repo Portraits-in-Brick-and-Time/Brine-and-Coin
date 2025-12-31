@@ -17,8 +17,6 @@ public class CharacterModel : GameObject {
 	
     }
 
-    [Key(2)]
-    public string Description { get; set; }
     
     [Key(3)]
     public bool IsNPC { get; set; }

@@ -57,6 +57,11 @@ public class GameAssetWriter : IDisposable
                 var isNPC = obj.GetField("isNPC").GetString() == "true";
                 model = new CharacterModel(name, description, isNPC);
             }
+            else if (type is "item")
+            {
+                var description = obj.GetField("description").GetString();
+                model = new ItemModel(name, description);
+            }
 
             ApplyAttributes(obj, model);
             WriteObject(model);
@@ -77,6 +82,11 @@ public class GameAssetWriter : IDisposable
 
     private void ApplyAttributes(HoconObject obj, GameObject model)
     {
+        if (!obj.ContainsKey("attributes"))
+        {
+            return;
+        }
+
         foreach (var (attrName, attrValue) in obj.GetField("attributes").GetObject().AsEnumerable())
         {
             var attrIndex = _attributesSection.IndexOf(attrName);

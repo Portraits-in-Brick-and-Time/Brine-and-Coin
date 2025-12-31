@@ -1,3 +1,4 @@
+using NetAF.Assets;
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Logic;
@@ -45,6 +46,10 @@ public class Program
             if (obj is Character c)
             {
                 Console.WriteLine($"{c.Identifier}: {obj.GetType().Name}");
+            }
+            else if (obj is Item item)
+            {
+                Console.WriteLine($"{item.Identifier}: {item.Description.GetDescription()}");
             }
 
             System.Console.WriteLine("\tAttributes:");

@@ -6,7 +6,6 @@ using System.Linq;
 using LibObjectFile.Elf;
 using MessagePack;
 using NetAF.Assets;
-using NetAF.Assets.Locations;
 using ObjectModel.Models;
 using ObjectModel.Sections;
 
