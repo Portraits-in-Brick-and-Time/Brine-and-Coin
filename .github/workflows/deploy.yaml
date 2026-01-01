@@ -61,6 +61,6 @@ jobs:
 
       - name: Create Release
         run: |
-          vpk upload github --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
-          vpk [linux] upload github --merge --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
+          vpk upload github --channel win --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
+          vpk [linux] upload github --merge --channel linux --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
           
