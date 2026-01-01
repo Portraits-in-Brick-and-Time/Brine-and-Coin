@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>BrineAndCoin</RootNamespace>
     <AssemblyName>Portraits_in_Brick_and_Time_-_Brine_And_Coin</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
