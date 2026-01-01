@@ -1,3 +1,4 @@
+using System.Reflection;
 using LibObjectFile.Elf;
 using NetAF.Assets;
 using NetAF.Assets.Characters;
@@ -22,6 +23,15 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        if(args.Length == 1 && args[0] == "--version")
+        {
+            var gitVersionInformationType = Assembly.GetEntryAssembly()!.GetType("GitVersionInformation");
+            var field = gitVersionInformationType!.GetField("MajorMinorPatch");
+
+            Console.WriteLine(field!.GetValue(null));
+            return;
+        }
+
         VelopackApp
                    .Build()
 #if WINDOWS

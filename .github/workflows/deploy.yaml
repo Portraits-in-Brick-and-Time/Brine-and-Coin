@@ -33,14 +33,7 @@ jobs:
         shell: powershell
         run: |
           $exePath = "publish/Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe"
-          $version = (Get-ItemProperty $exePath).VersionInfo.FileVersion
-          if (-not $version) { $version = "1.0.0" }
-          $parts = $version.Split('.')
-          if ($parts.Length -gt 3) {
-            $version = ($parts[0..2] -join '.')
-          } elseif ($parts.Length -lt 3) {
-            $version = "1.0.0"
-          }
+          $version = & $exePath --version
           echo "version=$version" >> $env:GITHUB_OUTPUT
           echo "version: $version"
 
