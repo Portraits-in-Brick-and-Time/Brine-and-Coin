@@ -1,6 +1,5 @@
 using System.Reflection;
 using LibObjectFile.Elf;
-using NetAF.Assets;
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Logic;
@@ -9,10 +8,8 @@ using NetAF.Targets.Console;
 using NetAF.Utilities;
 using ObjectModel;
 using Shell.Core;
-using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Structs;
-using Spectre.Console;
 using Splat;
 using Velopack;
 using Velopack.Sources;
@@ -110,25 +107,16 @@ public class Program
         GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
     }
 
-    private static void CheckForUpdatesAsync()
+    private static async Task CheckForUpdatesAsync()
     {
-        AnsiConsole.Progress()
-            .Start(async ctx =>
-            {
-                var mgr = new UpdateManager(new GithubSource("https://github.com/Portraits-in-Brick-and-Time/Brine-and-Coin", null, false));
+        var mgr = new UpdateManager(new GithubSource("https://github.com/Portraits-in-Brick-and-Time/Brine-and-Coin", null, false));
 
-                var newVersion = await mgr.CheckForUpdatesAsync();
-                if (newVersion == null)
-                    return;
+        var newVersion = await mgr.CheckForUpdatesAsync();
+        if (newVersion == null)
+            return;
 
-                var task1 = ctx.AddTask("Downloading Updates");
+        await mgr.DownloadUpdatesAsync(newVersion);
 
-                await mgr.DownloadUpdatesAsync(newVersion, progress =>
-                {
-                    task1.Increment(progress);
-                });
-
-                mgr.ApplyUpdatesAndRestart(newVersion);
-            });
+        mgr.ApplyUpdatesAndRestart(newVersion);
     }
 }
