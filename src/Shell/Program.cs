@@ -23,7 +23,7 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        if(args.Length == 1 && args[0] == "--version")
+        if (args.Length == 1 && args[0] == "--version")
         {
             var gitVersionInformationType = Assembly.GetEntryAssembly()!.GetType("GitVersionInformation");
             var field = gitVersionInformationType!.GetField("MajorMinorPatch");
@@ -40,15 +40,15 @@ public class Program
                    .Run();
 
 #if RELEASE
-                   CheckForUpdatesAsync();
+        await CheckForUpdatesAsync();
 #endif
 
-        var elf = File.OpenWrite("Assets/characters.elf");
+        var elf = File.OpenWrite("Assets/assets.elf");
         var objectWriter = new GameAssetWriter(elf);
-        objectWriter.WriteObjects("Assets/Definitions/characters.conf");
+        objectWriter.WriteObjects("Assets/Definitions/assets.conf");
         objectWriter.Close();
 
-        var reader = new GameAssetReader(File.OpenRead("Assets/characters.elf"));
+        var reader = new GameAssetReader(File.OpenRead("Assets/assets.elf"));
         reader.File.Print(Console.Out);
 
         var engine = new MiniAudioEngine();
