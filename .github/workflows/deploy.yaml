@@ -49,7 +49,9 @@ jobs:
           echo "version: $version"
           
       - name: Download old release    
-        run: vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          vpk download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+          vpk [linux] download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pack Windows
         run: vpk pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish-win --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe
@@ -60,4 +62,5 @@ jobs:
       - name: Create Release
         run: |
           vpk upload github --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
+          vpk [linux] upload github --merge --repoUrl https://github.com/${{ github.repository }} --releaseName "${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --publish --token ${{ secrets.GITHUB_TOKEN }}
           
