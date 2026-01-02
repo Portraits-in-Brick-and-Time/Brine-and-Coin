@@ -2,5 +2,6 @@
   <Folder Name="/Shell/">
     <Project Path="Shell/BrineAndCoin.csproj" />
   </Folder>
+  <Project Path="AssetCompiler/AssetCompiler.csproj" />
   <Project Path="ObjectModel/ObjectModel.csproj" />
 </Solution>

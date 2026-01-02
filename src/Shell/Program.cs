@@ -7,6 +7,7 @@ using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using NetAF.Utilities;
 using ObjectModel;
+using ObjectModel.IO;
 using Shell.Core;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Structs;

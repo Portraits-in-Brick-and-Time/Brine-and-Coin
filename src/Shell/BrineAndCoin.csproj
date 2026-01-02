@@ -30,6 +30,20 @@
   
   <ItemGroup>
     <ProjectReference Include="..\ObjectModel\ObjectModel.csproj" />
+    <ProjectReference Include="..\AssetCompiler\AssetCompiler.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <AssetCompilerOutputPath>$(SolutionDir)\AssetCompiler\bin\$(Configuration)\$(TargetFramework)\AssetCompiler.dll</AssetCompilerOutputPath>
+  </PropertyGroup>
+  <UsingTask TaskName="AssetCompiler.CompileAssetsTask" AssemblyFile="$(AssetCompilerOutputPath)" />
+  
+  <Target Name="CompileGameAssets" AfterTargets="Build">
+    <ItemGroup>
+      <AssetSources Include="Assets\**\*.conf" />
+    </ItemGroup>
+
+    <MSBuild Projects="..\AssetCompiler\AssetCompiler.csproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+    <CompileAssetsTask Sources="@(AssetSources)" OutputFilename="$(OutputPath)Assets\Definitions\assets.elf" />
+  </Target>
 </Project>
