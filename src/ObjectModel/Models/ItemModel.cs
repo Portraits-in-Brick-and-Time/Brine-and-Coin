@@ -13,7 +13,6 @@ public class ItemModel : GameObject
     }
     public ItemModel()
     {
-
     }
 
     public override IExaminable Instanciate()
