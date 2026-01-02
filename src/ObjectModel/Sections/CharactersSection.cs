@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using LibObjectFile.Elf;
 using MessagePack;
 using NetAF.Assets.Characters;

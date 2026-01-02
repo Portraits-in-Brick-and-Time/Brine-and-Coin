@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MessagePack;
 using NetAF.Assets;
 using NetAF.Assets.Locations;
@@ -8,7 +9,7 @@ namespace ObjectModel.Models
     public class RoomModel : GameObject
     {
         [Key(3)]
-        public List<IndexedRef> Items { get; set; }
+        public List<NamedRef> Items { get; set; }
 
         public RoomModel(string name, string description)
         {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MessagePack;
 using NetAF.Assets;
 using ObjectModel.Sections;
@@ -13,7 +14,7 @@ public abstract class GameObject
     public string Description { get; set; }
 
     [Key(2)]
-    public Dictionary<IndexedRef, int> Attributes { get; set; } = [];
+    public Dictionary<NamedRef, int> Attributes { get; set; } = [];
 
     public abstract IExaminable Instanciate();
 
@@ -21,7 +22,7 @@ public abstract class GameObject
     {
         foreach (var (key, value) in Attributes)
         {
-            target.Attributes.Add(attributesSection.Attributes[key.Index].Name, value);
+            target.Attributes.Add(attributesSection.GetAttributeByName(key.Name), value);
         }
     }
 }

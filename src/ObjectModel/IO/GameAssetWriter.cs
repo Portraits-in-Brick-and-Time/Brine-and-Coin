@@ -1,6 +1,9 @@
 namespace ObjectModel.IO;
 
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Hocon;
 using LibObjectFile.Elf;
 using NetAF.Assets;
@@ -66,8 +69,7 @@ public class GameAssetWriter : IDisposable
 
         foreach (var (attrName, attrValue) in obj.GetField("attributes").GetObject().AsEnumerable())
         {
-            var attrIndex = _customSections.AttributesSection.IndexOf(attrName);
-            model.Attributes.Add(new IndexedRef(attrIndex), int.Parse(attrValue.GetString()));
+            model.Attributes.Add(new NamedRef(attrName), int.Parse(attrValue.GetString()));
         }
     }
 

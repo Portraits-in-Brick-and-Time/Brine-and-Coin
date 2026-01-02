@@ -1,3 +1,5 @@
+using System.IO;
+using System.Linq;
 using LibObjectFile.Elf;
 
 namespace ObjectModel;

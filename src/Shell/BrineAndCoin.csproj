@@ -26,6 +26,7 @@
     <None Update="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="Assets\**\*.conf" />
   </ItemGroup>
   
   <ItemGroup>
@@ -44,6 +45,6 @@
     </ItemGroup>
 
     <MSBuild Projects="..\AssetCompiler\AssetCompiler.csproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
-    <CompileAssetsTask Sources="@(AssetSources)" OutputFilename="$(OutputPath)Assets\Definitions\assets.elf" />
+    <CompileAssetsTask Sources="@(AssetSources)" OutputFilename="$(OutputPath)Assets\core_assets.elf" />
   </Target>
 </Project>

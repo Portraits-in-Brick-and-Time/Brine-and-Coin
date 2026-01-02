@@ -1,6 +1,7 @@
+using System.Collections.Generic;
+using System.IO;
 using LibObjectFile.Elf;
 using MessagePack;
-using NetAF.Assets;
 using NetAF.Assets.Locations;
 using ObjectModel.Models;
 

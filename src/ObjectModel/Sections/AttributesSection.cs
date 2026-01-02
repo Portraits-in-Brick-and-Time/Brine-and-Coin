@@ -1,12 +1,14 @@
-using System.Security;
+using System.Collections.Generic;
+using System.IO;
 using LibObjectFile.Elf;
 using MessagePack;
+using NetAF.Assets.Attributes;
 
 namespace ObjectModel.Sections;
 
 public class AttributesSection(ElfFile file) : CustomSection(file)
 {
-    public List<NetAF.Assets.Attributes.Attribute> Attributes { get; } = [];
+    public List<Attribute> Attributes { get; } = [];
 
     public override string Name => ".attributes";
 
@@ -37,6 +39,19 @@ public class AttributesSection(ElfFile file) : CustomSection(file)
             if (Attributes[i].Name == name)
             {
                 return i;
+            }
+        }
+
+        throw new KeyNotFoundException($"Attribute '{name}' not found.");
+    }
+
+    public Attribute GetAttributeByName(string name)
+    {
+        foreach (var attribute in Attributes)
+        {
+            if (attribute.Name == name)
+            {
+                return attribute;
             }
         }
 

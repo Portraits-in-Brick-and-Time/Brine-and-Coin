@@ -33,7 +33,7 @@ public class Program
         await CheckForUpdatesAsync();
 #endif
 
-        var reader = new GameAssetReader(File.OpenRead("Assets/assets.elf"));
+        var reader = new GameAssetReader(File.OpenRead("Assets/core_assets.elf"));
         reader.File.Print(Console.Out);
 
         var engine = new MiniAudioEngine();
