@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using NetAF.Assets;
 using NetAF.Assets.Attributes;
 using NetAF.Assets.Characters;

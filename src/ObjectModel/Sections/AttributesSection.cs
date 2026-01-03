@@ -13,7 +13,6 @@ internal class AttributesSection(ElfFile file) : CustomSection(file)
 
     protected override void Write(BinaryWriter writer)
     {
-        writer.Write(Attributes.Count);
         foreach (var attribute in Attributes)
         {
             writer.Write(MessagePackSerializer.Serialize(attribute));
@@ -22,8 +21,7 @@ internal class AttributesSection(ElfFile file) : CustomSection(file)
 
     protected override void Read(BinaryReader reader)
     {
-        var count = reader.ReadInt32();
-        for (var i = 0; i < count; i++)
+        while (reader.BaseStream.Position < reader.BaseStream.Length)
         {
             var model = MessagePackSerializer.Deserialize<AttributeModel>(reader.BaseStream);
             Attributes.Add(model);

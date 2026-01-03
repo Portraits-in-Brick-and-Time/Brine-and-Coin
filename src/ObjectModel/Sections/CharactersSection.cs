@@ -13,7 +13,6 @@ internal class CharactersSection(ElfFile file) : CustomSection(file)
     public override string Name => ".characters";
     protected override void Write(BinaryWriter writer)
     {
-        writer.Write(Characters.Count);
         foreach (var character in Characters)
         {
             var start = (ulong)writer.BaseStream.Position;
@@ -25,8 +24,7 @@ internal class CharactersSection(ElfFile file) : CustomSection(file)
 
     protected override void Read(BinaryReader reader)
     {
-        var count = reader.ReadInt32();
-        for (var i = 0; i < count; i++)
+        while (reader.BaseStream.Position < reader.BaseStream.Length)
         {
             var model = MessagePackSerializer.Deserialize<CharacterModel>(reader.BaseStream);
 

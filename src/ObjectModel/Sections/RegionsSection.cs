@@ -13,7 +13,6 @@ internal class RegionsSection(ElfFile file) : CustomSection(file)
     public override string Name => ".regions";
     protected override void Write(BinaryWriter writer)
     {
-        writer.Write(Regions.Count);
         foreach (var region in Regions)
         {
             var start = (ulong)writer.BaseStream.Position;
@@ -25,8 +24,7 @@ internal class RegionsSection(ElfFile file) : CustomSection(file)
 
     protected override void Read(BinaryReader reader)
     {
-        var count = reader.ReadInt32();
-        for (var i = 0; i < count; i++)
+        while (reader.BaseStream.Position < reader.BaseStream.Length)
         {
             var model = MessagePackSerializer.Deserialize<RegionModel>(reader.BaseStream);
             Regions.Add(model);
