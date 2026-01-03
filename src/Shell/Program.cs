@@ -12,6 +12,7 @@ using ObjectModel.IO;
 using Shell.Core;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Structs;
+using Spectre.Console;
 using Splat;
 using Velopack;
 using Velopack.Sources;
@@ -41,6 +42,12 @@ public class Program
 #if RELEASE
         await CheckForUpdatesAsync();
 #endif
+
+        AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
+        var figlet = new FigletText("Brine and Coin") { Justification = Justify.Center };
+        AnsiConsole.Write(figlet);
+        AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
+        Console.ReadLine();
 
         var engine = new MiniAudioEngine();
         var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
