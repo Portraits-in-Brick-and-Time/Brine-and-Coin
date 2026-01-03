@@ -55,10 +55,10 @@ jobs:
           vpk [linux] download github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pack Windows
-        run: vpk pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish-win --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe
+        run: vpk pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish-win --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe --packTitle "Brine and Coin"
       
       - name: Pack Linux
-        run: vpk [linux] pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish-linux --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin 
+        run: vpk [linux] pack -u "${{ env.UNIQUE_IDENTIFIER }}" -v ${{ steps.get-version.outputs.version }} -p publish-linux --mainExe Portraits_in_Brick_and_Time_-_Brine_And_Coin --packTitle "Brine and Coin"
 
       - name: Create Release
         run: |
