@@ -30,7 +30,7 @@ public class ItemsSection(ElfFile file) : CustomSection(file)
         for (var i = 0; i < count; i++)
         {
             var model = MessagePackSerializer.Deserialize<ItemModel>(reader.BaseStream);
-            var instance = (Item)model.Instanciate();
+            var instance = (Item)model.Instanciate(CustomSections);
             model.InstanciateAttributesTo(instance, CustomSections.AttributesSection);
             Items.Add(instance);
         }

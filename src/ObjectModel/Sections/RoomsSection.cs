@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LibObjectFile.Elf;
 using MessagePack;
 using NetAF.Assets.Locations;
@@ -30,9 +32,14 @@ public class RoomsSection(ElfFile file) : CustomSection(file)
         for (var i = 0; i < count; i++)
         {
             var model = MessagePackSerializer.Deserialize<RoomModel>(reader.BaseStream);
-            var instance = (Room)model.Instanciate();
+            var instance = (Room)model.Instanciate(CustomSections);
             model.InstanciateAttributesTo(instance, CustomSections.AttributesSection);
             Rooms.Add(instance);
         }
+    }
+
+    public Room GetByName(string name)
+    {
+        return Rooms.FirstOrDefault(r => r.Identifier.Name == name);
     }
 }

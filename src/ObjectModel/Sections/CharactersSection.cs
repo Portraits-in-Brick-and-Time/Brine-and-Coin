@@ -34,7 +34,7 @@ public class CharactersSection(ElfFile file) : CustomSection(file)
         for (var i = 0; i < count; i++)
         {
             var model = MessagePackSerializer.Deserialize<CharacterModel>(reader.BaseStream);
-            var instance = (Character)model.Instanciate();
+            var instance = (Character)model.Instanciate(CustomSections);
             model.InstanciateAttributesTo(instance, CustomSections.AttributesSection);
             Characters.Add(instance);
         }

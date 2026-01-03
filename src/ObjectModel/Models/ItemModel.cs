@@ -15,7 +15,7 @@ public class ItemModel : GameObject
     {
     }
 
-    public override IExaminable Instanciate()
+    public override IExaminable Instanciate(CustomSections customSections)
     {
         return new Item(Name, Description);
     }

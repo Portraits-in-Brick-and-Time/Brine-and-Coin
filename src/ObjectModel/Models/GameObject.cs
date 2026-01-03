@@ -16,7 +16,7 @@ public abstract class GameObject
     [Key(2)]
     public Dictionary<NamedRef, int> Attributes { get; set; } = [];
 
-    public abstract IExaminable Instanciate();
+    public abstract IExaminable Instanciate(CustomSections customSections);
 
     public void InstanciateAttributesTo(IExaminable target, AttributesSection attributesSection)
     {

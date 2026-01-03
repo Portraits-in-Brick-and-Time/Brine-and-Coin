@@ -34,6 +34,7 @@ public class GameAssetWriter : IDisposable
         _definitionWriters["characters"] = WriteCharacter;
         _definitionWriters["items"] = WriteItem;
         _definitionWriters["rooms"] = WriteRoom;
+        _definitionWriters["regions"] = WriteRegion;
     }
 
     public bool IsClosed { get; set; }
@@ -80,7 +81,7 @@ public class GameAssetWriter : IDisposable
 
         var model = new CharacterModel(name, description, isNPC);
         ApplyAttributes(obj, model);
-        _customSections.CharactersSection.Characters.Add(model.Instanciate() as Character);
+        _customSections.CharactersSection.Characters.Add(model.Instanciate(_customSections) as Character);
     }
 
     private void WriteItem(string name, HoconObject obj)
@@ -89,7 +90,7 @@ public class GameAssetWriter : IDisposable
 
         var model = new ItemModel(name, description);
         ApplyAttributes(obj, model);
-        _customSections.ItemsSection.Items.Add((Item)model.Instanciate());
+        _customSections.ItemsSection.Items.Add((Item)model.Instanciate(_customSections));
     }
 
     private void WriteRoom(string name, HoconObject obj)
@@ -98,7 +99,28 @@ public class GameAssetWriter : IDisposable
 
         var model = new RoomModel(name, description);
         ApplyAttributes(obj, model);
-        _customSections.RoomsSection.Rooms.Add((Room)model.Instanciate());
+        _customSections.RoomsSection.Rooms.Add((Room)model.Instanciate(_customSections));
+    }
+
+    private void WriteRegion(string name, HoconObject obj)
+    {
+        var description = obj.GetField("description").GetString();
+        var rooms = obj.GetField("rooms").GetArray().Select(r => r.GetObject()).ToArray();
+
+        var roomDict = new Dictionary<NamedRef, Position>();
+        foreach (var room in rooms)
+        {
+            var nameRef = new NamedRef(room.GetField("name").GetString());
+            var x = int.Parse(room.GetField("x").GetString());
+            var y = int.Parse(room.GetField("y").GetString());
+            var z = int.Parse(room.GetField("z").GetString());
+            
+            roomDict[nameRef] = new(x, y, z);
+        }
+
+        var model = new RegionModel(name, description, roomDict);
+        ApplyAttributes(obj, model);
+        _customSections.RegionsSection.Regions.Add((Region)model.Instanciate(_customSections));
     }
 
     private void WriteAttribute(string name, HoconObject obj)

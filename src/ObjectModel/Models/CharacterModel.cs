@@ -19,7 +19,7 @@ public class CharacterModel : GameObject {
     [Key(3)]
     public bool IsNPC { get; set; }
 
-    public override IExaminable Instanciate()
+    public override IExaminable Instanciate(CustomSections customSections)
     {
         Character c;
         if (IsNPC)

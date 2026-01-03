@@ -12,6 +12,8 @@ public class CustomSections
 
     public RoomsSection RoomsSection { get; }
 
+    public RegionsSection RegionsSection { get; }
+
     private CustomSection[] _allSections;
 
     public CustomSections(ElfFile file)
@@ -20,6 +22,7 @@ public class CustomSections
         ItemsSection = new(file);
         CharactersSection = new(file);
         RoomsSection = new(file);
+        RegionsSection = new(file);
 
         _allSections =
         [
@@ -30,6 +33,9 @@ public class CustomSections
             // Depends On Other Sections
             RoomsSection,
             CharactersSection,
+
+            // Dependend to RoomsSection
+            RegionsSection
         ];
     }
 
