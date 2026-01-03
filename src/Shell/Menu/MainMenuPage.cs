@@ -12,7 +12,8 @@ public class MainMenuPage : MenuPage
         Console.Clear();
 
         AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
-        var figlet = new FigletText("Brine and Coin") { Justification = Justify.Center };
+        var font = FigletFont.Load("Assets/font.flf");
+        var figlet = new FigletText(font, "Brine and Coin") { Justification = Justify.Center };
         AnsiConsole.Write(figlet);
         AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
 
