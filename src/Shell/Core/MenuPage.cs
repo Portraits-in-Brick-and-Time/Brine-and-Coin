@@ -5,6 +5,7 @@ namespace BrineAndCoin.Core;
 public abstract class MenuPage
 {
     public MenuPage PreviousPage;
+    protected virtual bool RenderTitle { get; } = true;
 
     public void Back()
     {
@@ -19,7 +20,7 @@ public abstract class MenuPage
 
     public void Display()
     {
-        if (Title is not null)
+        if (Title is not null && RenderTitle)
         {
             var panel = new Panel(Title);
             AnsiConsole.Write(panel);

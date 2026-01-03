@@ -1,5 +1,6 @@
 using BrineAndCoin.Core;
 using Spectre.Console;
+using Splat;
 
 namespace BrineAndCoin;
 
@@ -11,12 +12,12 @@ public class MainMenuPage : MenuPage
     {
         Console.Clear();
 
-        AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
+        AnsiConsole.Write(new Rule() { Border = BoxBorder.Ascii });
         var font = FigletFont.Load("Assets/font.flf");
+        Locator.CurrentMutable.RegisterConstant(font);
         var figlet = new FigletText(font, "Brine and Coin") { Justification = Justify.Center };
         AnsiConsole.Write(figlet);
-        AnsiConsole.Write(new Rule() { Border = BoxBorder.Double });
-
+        AnsiConsole.Write(new Rule() { Border = BoxBorder.Ascii });
         var prompt = new SelectionPrompt<MenuPage>();
 
         prompt.AddChoice(new StartGamePage());
