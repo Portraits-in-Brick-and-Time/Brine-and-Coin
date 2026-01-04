@@ -179,7 +179,7 @@ public class GameAssetWriter : IDisposable
         _customSections.AttributesSection.Attributes.Add(model);
     }
 
-    private T? GetOptionalFieldValue<T>(HoconObject obj, string fieldName)
+    private T GetOptionalFieldValue<T>(HoconObject obj, string fieldName)
         where T : IParsable<T>
     {
         return obj.ContainsKey(fieldName) ? T.Parse(obj.GetField(fieldName).GetString(), CultureInfo.InvariantCulture) : default;
