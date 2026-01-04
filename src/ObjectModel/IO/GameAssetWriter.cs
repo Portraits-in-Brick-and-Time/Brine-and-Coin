@@ -146,13 +146,8 @@ public class GameAssetWriter : IDisposable
         var roomDict = new Dictionary<NamedRef, Position>();
         foreach (var (roomName, roomObj) in rooms)
         {
-            var _obj = roomObj.GetObject();
             var nameRef = new NamedRef(roomName);
-            var x = int.Parse(_obj.GetField("x").GetString());
-            var y = int.Parse(_obj.GetField("y").GetString());
-            var z = int.Parse(_obj.GetField("z").GetString());
-
-            roomDict[nameRef] = new(x, y, z);
+            roomDict[nameRef] = Position.Parse(roomObj);
         }
 
         var model = new RegionModel(name, description, roomDict);
