@@ -9,7 +9,7 @@ internal class AttributesSection(ElfFile file) : ModelSection<AttributeModel>(fi
 {
     public override string Name => ".attributes";
 
-    protected override bool AddElementsToSymbolTable() => false;
+    protected override ElfSymbolType SymbolType => ElfSymbolType.Common;
 
     public int IndexOf(string name)
     {
