@@ -1,19 +1,12 @@
 using BrineAndCoin.Core;
-using NetAF.Assets.Characters;
-using NetAF.Logic;
-using NetAF.Rendering.FrameBuilders;
-using NetAF.Targets.Console;
-using ObjectModel;
 using Shell.Core;
-using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Structs;
-using Splat;
 
 namespace BrineAndCoin;
 
 public class StartGamePage : MenuPage
 {
     public override string? Title => "Start Game";
+    protected override bool RenderTitle { get; } = false;
 
     protected override void Render()
     {
