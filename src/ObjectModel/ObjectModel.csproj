@@ -11,6 +11,7 @@
     <PackageReference Include="LibObjectFile" Version="2.1.0" />
     <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="NetAF" Version="3.10.1" />
+    <PackageReference Include="Splat" Version="19.1.1" />
   </ItemGroup>
 
 </Project>

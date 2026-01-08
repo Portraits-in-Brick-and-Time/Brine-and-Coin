@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MessagePack;
+using ObjectModel.Models.Code;
 
 namespace ObjectModel.Models;
 
@@ -11,6 +12,12 @@ internal class RoomModel : GameObjectModel, IItemModel
 
     [Key(4)]
     public List<NamedRef> NPCS { get; set; } = [];
+
+    [Key(5)]
+    public List<IEvaluable> OnEnter { get; set; } = [];
+
+    [Key(6)]
+    public List<IEvaluable> OnExit { get; set; } = [];
 
     public RoomModel(string name, string description)
     {

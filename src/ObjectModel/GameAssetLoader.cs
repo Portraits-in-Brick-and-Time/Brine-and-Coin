@@ -8,6 +8,8 @@ using NetAF.Assets.Locations;
 using NetAF.Commands;
 using ObjectModel.IO;
 using ObjectModel.Models;
+using ObjectModel.Models.Code;
+using Splat;
 
 namespace ObjectModel;
 
@@ -125,13 +127,30 @@ public class GameAssetLoader
     {
         foreach (var roomModel in customSections.RoomsSection.Elements)
         {
-            var room = new Room(roomModel.Name, roomModel.Description);
+            var room = new Room(roomModel.Name, roomModel.Description,
+                enterCallback: ApplyRoomTransition(roomModel.OnEnter),
+                exitCallback: ApplyRoomTransition(roomModel.OnExit)
+            );
             ApplyAttributes(room, roomModel);
             AddItems(room, roomModel);
             AddNpcs(room, roomModel);
 
             _rooms.Add(room);
         }
+    }
+
+    private RoomTransitionCallback ApplyRoomTransition(List<IEvaluable> code)
+    {
+        if (code.Count == 0)
+        {
+            return null;
+        }
+        
+        return new( transition =>
+        {
+            var reaction = Locator.Current.GetService<Evaluator>().Evaluate<Reaction>(code);
+            return new(reaction, true);
+        });
     }
 
     private void AddNpcs(Room target, RoomModel model)

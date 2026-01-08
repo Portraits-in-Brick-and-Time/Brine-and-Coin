@@ -8,6 +8,7 @@ using System.Linq;
 using Hocon;
 using LibObjectFile.Elf;
 using ObjectModel.Models;
+using ObjectModel.Models.Code;
 
 public class GameAssetWriter : IDisposable
 {
@@ -149,8 +150,26 @@ public class GameAssetWriter : IDisposable
         ApplyAttributes(obj, model);
         ApplyInventory(obj, model);
         ApplyNpcs(obj, model);
+        ApplyCode(obj, model.OnEnter, "on_enter");
+        ApplyCode(obj, model.OnExit, "on_exit");
 
         _customSections.RoomsSection.Elements.Add(model);
+    }
+
+    private void ApplyCode(HoconObject obj, List<IEvaluable> code, string objName)
+    {
+        if (!obj.ContainsKey(objName))
+        {
+            return;
+        }
+
+        foreach (var c in obj[objName].GetObject())
+        {
+            if (c.Key is "reaction")
+            {
+                code.Add(ReactionModel.FromObject(c));
+            }
+        }
     }
 
     private void WriteRegion(string name, HoconObject obj)
@@ -173,7 +192,7 @@ public class GameAssetWriter : IDisposable
         }
 
         ApplyAttributes(obj, model);
-        
+
         _customSections.RegionsSection.Elements.Add(model);
     }
 
