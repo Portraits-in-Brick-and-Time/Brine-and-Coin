@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Hocon;
 using MessagePack;
 using NetAF.Commands;
+using ObjectModel.Evaluation;
 
 namespace ObjectModel.Models.Code;
 
@@ -26,7 +27,7 @@ internal class ReactionModel : IEvaluable
         };
     }
 
-    public object Evaluate()
+    public object Evaluate(Evaluator evaluator, Scope scope)
     {
         return new Reaction(Type, Description);
     }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Hocon;
 using LibObjectFile.Elf;
+using ObjectModel.Evaluation;
 using ObjectModel.Models;
 using ObjectModel.Models.Code;
 
@@ -165,9 +166,14 @@ public class GameAssetWriter : IDisposable
 
         foreach (var c in obj[objName].GetObject())
         {
-            if (c.Key is "reaction")
+            switch (c.Key)
             {
-                code.Add(ReactionModel.FromObject(c));
+                case "reaction":
+                    code.Add(ReactionModel.FromObject(c));
+                    break;
+                default:
+                    code.Add(VariableDefinitonModel.FromObject(c));
+                    break;
             }
         }
     }

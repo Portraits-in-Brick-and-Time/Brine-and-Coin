@@ -6,6 +6,7 @@ using NetAF.Assets.Attributes;
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Commands;
+using ObjectModel.Evaluation;
 using ObjectModel.IO;
 using ObjectModel.Models;
 using ObjectModel.Models.Code;
@@ -148,7 +149,8 @@ public class GameAssetLoader
         
         return new(transition =>
         {
-            var reaction = Locator.Current.GetService<Evaluator>().Evaluate<Reaction>(code);
+            Evaluator evaluator = Locator.Current.GetService<Evaluator>();
+            var reaction = evaluator.Evaluate<Reaction>(code, evaluator.RootScope);
             return new(reaction, true);
         });
     }

@@ -3,6 +3,7 @@ using NetAF.Logic;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using ObjectModel;
+using ObjectModel.Evaluation;
 using Shell.Core;
 using SoundFlow.Backends.MiniAudio;
 using SoundFlow.Structs;
@@ -27,6 +28,8 @@ public class StartGamePage : MenuPage
         Locator.CurrentMutable.RegisterConstant(engine);
         Locator.CurrentMutable.RegisterConstant(playbackDevice);
         Locator.CurrentMutable.RegisterConstant(writer);
+
+        Locator.CurrentMutable.RegisterConstant(new Evaluator());
 
         //await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 
