@@ -1,5 +1,7 @@
 using BrineAndCoin.Core;
+using NetAF.Interpretation;
 using NetAF.Logic;
+using NetAF.Logic.Modes;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using ObjectModel;
@@ -60,12 +62,27 @@ public class StartGamePage : MenuPage
 
         var world = GameAssetLoader.LoadFile(out var players);
 
+        var sceneInterpreter = new InputInterpreter
+        (
+            new FrameCommandInterpreter(),
+            new GlobalCommandInterpreter(),
+            new ExecutionCommandInterpreter(),
+            new CustomCommandInterpreter(),
+            new SceneCommandInterpreter()
+        );
+
+        var configuration = new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene);
+
+        // change configuration prevent using the normal persistence interpreter as this is handled by custom commands
+        configuration.InterpreterProvider.Register(typeof(SceneMode), sceneInterpreter);
+
         var gameCreator = Game.Create(
                         new GameInfo("Portraits in Brick and Time - Brine and Coin", "Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.", "Chris Anders"),
                         "",
                         AssetGenerator.Retained(world, players[0]),
                         new GameEndConditions(IsGameComplete, IsGameOver),
-                        new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene), game =>
+                        configuration,
+                        game =>
                         {
                             Locator.CurrentMutable.RegisterConstant(game);
 

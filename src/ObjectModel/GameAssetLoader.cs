@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using NetAF.Assets;
 using NetAF.Assets.Attributes;
 using NetAF.Assets.Characters;
 using NetAF.Assets.Locations;
 using NetAF.Commands;
+using NetAF.Commands.Persistence;
 using ObjectModel.Evaluation;
 using ObjectModel.IO;
 using ObjectModel.Models;
-using ObjectModel.Models.Code;
 using Splat;
 
 namespace ObjectModel;
@@ -71,6 +71,35 @@ public class GameAssetLoader
         }
 
         return overworld;
+    }
+
+    private CustomCommand[] CreatePersistentCommands()
+    {
+        var folder = Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+            "BrineAndCoin");
+        var path = Path.Combine(
+            folder,
+            "savegame.json"
+        );
+
+        if (!Directory.Exists(folder))
+        {
+            Directory.CreateDirectory(folder);
+        }
+
+        return [
+            ConvertCommand(new Load(path)),
+            ConvertCommand(new Save(path)),
+        ];
+    }
+
+    private static CustomCommand ConvertCommand(ICommand command)
+    {
+        return new CustomCommand(command.Help, true, true, (game, args) =>
+        {
+            return command.Invoke(game);
+        });
     }
 
     private Region GetRegionByName(string name)
@@ -178,7 +207,7 @@ public class GameAssetLoader
             }
             else
             {
-                character = new PlayableCharacter(charModel.Name, charModel.Description, commands: commands);
+                character = new PlayableCharacter(charModel.Name, charModel.Description, commands: CreatePersistentCommands().Concat(commands).ToArray());
                 _players.Add((PlayableCharacter)character);
             }
 
