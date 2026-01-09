@@ -6,6 +6,7 @@ using ObjectModel;
 using ObjectModel.Evaluation;
 using Shell.Core;
 using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Editing.Mapping;
 using SoundFlow.Structs;
 using Splat;
 
@@ -30,7 +31,6 @@ public class StartGamePage : MenuPage
         Locator.CurrentMutable.RegisterConstant(writer);
 
         Locator.CurrentMutable.RegisterConstant(new Evaluator());
-
         //await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
 
         InitAndExecuteGame();
@@ -54,6 +54,10 @@ public class StartGamePage : MenuPage
 
     static void InitAndExecuteGame()
     {
+        var clock = new Clock();
+        // Commands have to be added before the asset file is being loaded
+        CommandStore.Add("clock.show", clock.CreateCommand());
+
         var world = GameAssetLoader.LoadFile(out var players);
 
         var gameCreator = Game.Create(
@@ -61,7 +65,13 @@ public class StartGamePage : MenuPage
                         "",
                         AssetGenerator.Retained(world, players[0]),
                         new GameEndConditions(IsGameComplete, IsGameOver),
-                        new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene));
+                        new GameConfiguration(new ConsoleAdapter(), FrameBuilderCollections.Console, new(90, 30), StartModes.Scene), game =>
+                        {
+                            Locator.CurrentMutable.RegisterConstant(game);
+
+                            clock.Init(DateTime.Now);
+                            Locator.CurrentMutable.RegisterConstant(clock);
+                        });
 
         GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
     }
