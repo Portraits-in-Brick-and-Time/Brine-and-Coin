@@ -159,6 +159,7 @@ public class GameAssetLoader
         {
             var room = new Room(roomModel.Name, roomModel.Description,
                 commands: GetCommands(roomModel),
+                exits: GetExits(roomModel),
                 enterCallback: ApplyRoomTransition(roomModel.OnEnter),
                 exitCallback: ApplyRoomTransition(roomModel.OnExit)
             );
@@ -168,6 +169,20 @@ public class GameAssetLoader
 
             _rooms.Add(room);
         }
+    }
+
+    private Exit[] GetExits(RoomModel model)
+    {
+        var exits = new List<Exit>();
+        
+        foreach (var exitModel in model.Exits)
+        {
+            var exit = new Exit(exitModel.Direction, exitModel.IsLocked, new(exitModel.Name),
+                new Description(exitModel.Description));
+            exits.Add(exit);
+        }
+
+        return [.. exits];
     }
 
     private RoomTransitionCallback ApplyRoomTransition(List<IEvaluable> code)
