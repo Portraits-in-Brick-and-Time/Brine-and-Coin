@@ -13,6 +13,7 @@ jobs:
     runs-on: windows-latest
     env:
       PROJECT_FILE: src/Shell/BrineAndCoin.csproj
+      COMPILER_PROJECT_FILE: src/AssetCompiler/AssetCompiler.csproj
       UNIQUE_IDENTIFIER: Brine_and_Coin
     steps:
       - name: Checkout Repository
@@ -27,6 +28,9 @@ jobs:
 
       - name: Install Velopack CLI
         run: dotnet tool install -g vpk
+
+      - name: Build AssetCompiler
+        run: dotnet build "$COMPILER_PROJECT_FILE" -c Release
 
       - name: Publish To Windows
         shell: bash
