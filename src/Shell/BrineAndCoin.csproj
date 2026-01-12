@@ -44,7 +44,6 @@
       <AssetSources Include="Assets\**\*.conf" />
     </ItemGroup>
 
-    <MSBuild Projects="..\AssetCompiler\AssetCompiler.csproj" Properties="Configuration=$(Configuration);Platform=$(Platform)" />
     <CompileAssetsTask Sources="@(AssetSources)" OutputFilename="$(OutputPath)Assets\core_assets.elf">
       <Output TaskParameter="OutputItem" ItemName="CoreAssets" />
     </CompileAssetsTask>

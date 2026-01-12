@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/build/">
+    <Project Path="build/build.csproj" />
+  </Folder>
   <Folder Name="/Shell/">
     <Project Path="Shell/BrineAndCoin.csproj" />
   </Folder>
