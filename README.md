@@ -3,10 +3,7 @@
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/furesoft)
 
 
-# Brine and Coin
-Brine and Coin is an open source text adventure where you experience the history of Schwäbisch Hall.
-
-# Echoes of the City – Brine and Coin
+# Portraits in Brick and Time - Brine and Coin
 
 **A narrative text adventure exploring the rise of cities through salt, trade, and human ambition.**
 
