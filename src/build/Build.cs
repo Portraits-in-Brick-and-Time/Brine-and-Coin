@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -11,6 +12,9 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Utilities;
+using Nuke.Components;
+using ObjectModel.IO;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -21,16 +25,18 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     AutoGenerate = true,
     PublishArtifacts = false,
     EnableGitHubToken = true,
-    InvokedTargets = new[] { nameof(DeployToGitHubReleases) })]
+    InvokedTargets = new[] { nameof(Deploy) })]
 class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 {
-    public static int Main() => Execute<BuildFile>(x => x.DeployToGitHubReleases);
+    public static int Main() => Execute<BuildFile>(x => x.Deploy);
 
     [Parameter("GitHub Token")] readonly string GitHubToken;
+    [Parameter("AssetsFilename")] readonly string AssetsFilename = "Assets/core_assets.elf";
 
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
 
+    AbsolutePath ReleaseDir => RootDirectory / "release";
     AbsolutePath PublishWinDir => RootDirectory / "publish-win";
     AbsolutePath PublishLinuxDir => RootDirectory / "publish-linux";
 
@@ -42,39 +48,46 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         {
             PublishWinDir.DeleteDirectory();
             PublishLinuxDir.DeleteDirectory();
+
+            Log.Information("Clean completed");
         });
 
-    Target InstallVelopack => _ => _
-        .Executes(() =>
-        {
-            DotNet("tool install -g vpk");
-        });
-
-    Target BuildAssetCompiler => _ => _
+    Target BuildAssets => _ => _
         .DependsOn(Clean)
+        .Before(Build)
         .ProceedAfterFailure()
         .Executes(() =>
         {
-            try
+            if (!Directory.Exists("Assets"))
             {
-                var filename = Solution.AssetCompiler.Path;
-                DotNetBuild(s => s
-                    .SetProjectFile(filename)
-                    .SetConfiguration(Configuration));
-            } catch (Exception ex)
-            {
-                Log.Error(ex, "");
+                Directory.CreateDirectory("Assets");
             }
+
+            if (!File.Exists(AssetsFilename))
+            {
+                File.Create(AssetsFilename).Close();
+            }
+
+            using var elf = File.Create(AssetsFilename);
+            var objectWriter = new GameAssetWriter(elf);
+            var sources = Solution.Shell.BrineAndCoin.GetItems("AssetSources");
+            foreach (var source in sources)
+            {
+                objectWriter.WriteObjects(Solution.Shell.BrineAndCoin.Directory / source);
+            }
+            objectWriter.Close();
+            //ToDo: copy core_assets.elf to output dir
+            Log.Information($"Compiled assets to {AssetsFilename}");
         });
 
     Target Build => _ => _
-        .DependsOn(Clean, BuildAssetCompiler)
+        .DependsOn(Clean, BuildAssets)
         .Executes(() =>
         {
             var filename = Solution.Shell.BrineAndCoin.Path;
             DotNetBuild(s => s
                 .SetProjectFile(filename)
-                .SetConfiguration(Configuration));
+                .SetConfiguration(((IHazConfiguration)this).Configuration));
         });
 
     Target PublishWindows => _ => _
@@ -85,7 +98,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
             var filename = Solution.Shell.BrineAndCoin.Path;
             DotNetPublish(s => s
                 .SetProject(filename)
-                .SetConfiguration(Configuration)
+                .SetConfiguration(((IHazConfiguration)this).Configuration)
                 .SetRuntime("win-x64")
                 .SetSelfContained(true)
                 .SetOutput(PublishWinDir));
@@ -100,60 +113,63 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
             var filename = Solution.Shell.BrineAndCoin.Path;
             DotNetPublish(s => s
                 .SetProject(filename)
-                .SetConfiguration(Configuration)
+                .SetConfiguration(((IHazConfiguration)this).Configuration)
                 .SetRuntime("linux-x64")
                 .SetSelfContained(true)
                 .SetOutput(PublishLinuxDir));
         });
 
-    Target VelopackDownloadOldRelease => _ => _
-        .DependsOn(PublishLinux, PublishWindows, InstallVelopack)
+    Target DownloadOldRelease => _ => _
+        .DependsOn(PublishLinux, PublishWindows)
         //.OnlyWhenStatic(() => Configuration == Configuration.Release)
         .Executes(() =>
         {
-            // Windows
-            ProcessTasks.StartProcess("vpk",
-                $"download github --repoUrl https://github.com/{GitHubActions.Instance.Repository} --token {GitHubToken}",
-                logOutput: true).AssertZeroExitCode();
-
-            // Linux
-            ProcessTasks.StartProcess("vpk",
-                $"[linux] download github --repoUrl https://github.com/{GitHubActions.Instance.Repository} --token {GitHubToken}",
-                logOutput: true).AssertZeroExitCode();
+            string repository = GitHubActions.Instance?.Repository ?? "Portraits-in-Brick-and-Time/Brine-and-Coin";
+            VelopackTasks.VelopackDownloadGithub(_ => _
+                .SetRepoUrl($"https://github.com/{repository}")
+                .SetToken(GitHubToken)
+                .SetOutputDir(ReleaseDir)
+                .CombineWith(["windows", "linux"], (settings, channel) =>
+                {
+                    settings.SetChannel(channel);
+                    return settings;
+                }), 2, true
+            );
         });
 
     Target VelopackPackWindows => _ => _
-        .DependsOn(VelopackDownloadOldRelease)
+        .DependsOn(DownloadOldRelease)
         .Executes(() =>
         {
             ProcessTasks.StartProcess("vpk",
-                $"pack -u \"{UniqueIdentifier}\" -v {Version.LegacySemVer} -p {PublishWinDir} --mainExe {ExeName}.exe --packTitle \"Brine and Coin\"",
+                $"pack -u \"{UniqueIdentifier}\" -v {((IHazGitVersion)this).Versioning.LegacySemVer} -p {PublishWinDir} --mainExe {ExeName}.exe --packTitle \"Brine and Coin\"",
                 logOutput: true).AssertZeroExitCode();
         });
 
     Target VelopackPackLinux => _ => _
-        .DependsOn(VelopackDownloadOldRelease)
+        .DependsOn(DownloadOldRelease)
         .Executes(() =>
         {
             ProcessTasks.StartProcess("vpk",
-                $"[linux] pack -u \"{UniqueIdentifier}\" -v {Version} -p {PublishLinuxDir} --mainExe {ExeName} --packTitle \"Brine and Coin\"",
+                $"[linux] pack -u \"{UniqueIdentifier}\" -v {((IHazGitVersion)this).Versioning.LegacySemVer} -p {PublishLinuxDir} --mainExe {ExeName} --packTitle \"Brine and Coin\"",
                 logOutput: true).AssertZeroExitCode();
         });
 
-    Target DeployToGitHubReleases => _ => _
+    Target Deploy => _ => _
         .DependsOn(VelopackPackWindows, VelopackPackLinux)
         .Executes(() =>
         {
             // Windows channel
+            string version = ((IHazGitVersion)this).Versioning.LegacySemVer;
             ProcessTasks.StartProcess("vpk",
                 $"upload github --channel win --repoUrl https://github.com/{GitHubActions.Instance.Repository} " +
-                $"--releaseName \"{Version}\" --tag v{Version} --publish --token {GitHubToken}",
+                $"--releaseName \"{version}\" --tag v{version} --publish --token {GitHubToken}",
                 logOutput: true).AssertZeroExitCode();
 
             // Linux channel
             ProcessTasks.StartProcess("vpk",
                 $"[linux] upload github --merge --channel linux --repoUrl https://github.com/{GitHubActions.Instance.Repository} " +
-                $"--releaseName \"{Version}\" --tag v{Version} --publish --token {GitHubToken}",
+                $"--releaseName \"{version}\" --tag v{version} --publish --token {GitHubToken}",
                 logOutput: true).AssertZeroExitCode();
         });
 

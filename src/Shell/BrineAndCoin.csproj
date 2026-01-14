@@ -31,29 +31,9 @@
   
   <ItemGroup>
     <ProjectReference Include="..\ObjectModel\ObjectModel.csproj" />
-    <ProjectReference Include="..\AssetCompiler\AssetCompiler.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <AssetCompilerOutputPath>$(SolutionDir)\AssetCompiler\bin\$(Configuration)\$(TargetFramework)\AssetCompiler.dll</AssetCompilerOutputPath>
-  </PropertyGroup>
-  <UsingTask TaskName="AssetCompiler.CompileAssetsTask" AssemblyFile="$(AssetCompilerOutputPath)" />
-  
-  <Target Name="CompileGameAssets" BeforeTargets="PrepareForBuild">
-    <ItemGroup>
-      <AssetSources Include="Assets\**\*.conf" />
-    </ItemGroup>
-
-    <CompileAssetsTask Sources="@(AssetSources)" OutputFilename="$(OutputPath)Assets\core_assets.elf">
-      <Output TaskParameter="OutputItem" ItemName="CoreAssets" />
-    </CompileAssetsTask>
-
-    <ItemGroup>
-      <Content Include="@(CoreAssets)">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        <TargetPath>Assets\%(Filename)%(Extension)</TargetPath>
-      </Content>
-    </ItemGroup>
-  </Target>
+  <ItemGroup>
+    <AssetSources Include="Assets\**\*.conf" />
+  </ItemGroup>
 </Project>

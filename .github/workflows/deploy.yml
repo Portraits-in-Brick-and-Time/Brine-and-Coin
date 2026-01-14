@@ -34,7 +34,7 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: DeployToGitHubReleases'
-        run: ./build.cmd DeployToGitHubReleases
+      - name: 'Run: Deploy'
+        run: ./build.cmd Deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

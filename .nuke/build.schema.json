@@ -25,13 +25,12 @@
       "type": "string",
       "enum": [
         "Build",
-        "BuildAssetCompiler",
+        "BuildAssets",
         "Clean",
-        "DeployToGitHubReleases",
-        "InstallVelopack",
+        "Deploy",
+        "DownloadOldRelease",
         "PublishLinux",
         "PublishWindows",
-        "VelopackDownloadOldRelease",
         "VelopackPackLinux",
         "VelopackPackWindows"
       ]
@@ -107,6 +106,10 @@
   "allOf": [
     {
       "properties": {
+        "AssetsFilename": {
+          "type": "string",
+          "description": "AssetsFilename"
+        },
         "Configuration": {
           "type": "string",
           "enum": [

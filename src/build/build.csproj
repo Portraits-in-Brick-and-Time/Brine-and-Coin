@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Nuke.CodeGeneration" Version="6.3.0" />
     <PackageReference Include="Nuke.Common" Version="10.1.0" />
+    <PackageReference Include="Nuke.Components" Version="10.1.0" />
     <PackageReference Include="Nuke.Tooling.Generator" Version="10.1.0" />
 
     <NukeSpecificationFiles Include="*.json" />
@@ -21,6 +22,11 @@
 
   <ItemGroup>
     <PackageDownload Include="GitVersion.Tool" Version="[6.5.1]" />
+    <PackageDownload Include="vpk" Version="[0.0.1298]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ObjectModel\ObjectModel.csproj" />
   </ItemGroup>
 
 </Project>
