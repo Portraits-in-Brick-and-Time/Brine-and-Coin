@@ -38,7 +38,7 @@ class BuildFile : NukeBuild
     AbsolutePath PublishLinuxDir => RootDirectory / "publish-linux";
 
     const string UniqueIdentifier = "Brine_and_Coin";
-    const string ExeName = "Portraits_in_Brick_and_Time_-_Brine_And_Coin.exe";
+    const string ExeName = "Portraits_in_Brick_and_Time_-_Brine_And_Coin";
 
     [Parameter]
     readonly Configuration Configuration = IsServerBuild ? Configuration.Release : Configuration.Debug;
