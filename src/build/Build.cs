@@ -1,12 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using NJsonSchema.Annotations;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
-using Nuke.Common.CI.GitHubActions.Configuration;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
@@ -28,10 +23,10 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     InvokedTargets = new[] { nameof(Deploy) })]
 class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 {
-    public static int Main() => Execute<BuildFile>(x => x.Deploy);
+    public static int Main() => Execute<BuildFile>(x => x.Build);
 
     [Parameter("GitHub Token")] readonly string GitHubToken;
-    [Parameter("AssetsFilename")] readonly string AssetsFilename = "Assets/core_assets.elf";
+    [Parameter("AssetsFilename")] readonly string AssetsFilename = "core_assets.elf";
 
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
@@ -42,6 +37,9 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 
     const string UniqueIdentifier = "Brine_and_Coin";
     const string ExeName = "Portraits_in_Brick_and_Time_-_Brine_And_Coin";
+
+    [NuGetPackage("vpk", "vpk.dll")]
+    Tool Velopack;
 
     Target Clean => _ => _
         .Executes(() =>
@@ -68,7 +66,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 File.Create(AssetsFilename).Close();
             }
 
-            using var elf = File.Create(AssetsFilename);
+            using var elf = File.Create(Solution.Shell.BrineAndCoin.Directory / "Assets" / AssetsFilename);
             var objectWriter = new GameAssetWriter(elf);
             var sources = Solution.Shell.BrineAndCoin.GetItems("AssetSources");
             foreach (var source in sources)
@@ -76,7 +74,6 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 objectWriter.WriteObjects(Solution.Shell.BrineAndCoin.Directory / source);
             }
             objectWriter.Close();
-            //ToDo: copy core_assets.elf to output dir
             Log.Information($"Compiled assets to {AssetsFilename}");
         });
 
@@ -92,7 +89,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 
     Target Publish => _ => _
         .DependsOn(Build)
-        //.OnlyWhenStatic(() => Configuration == Configuration.Release)
+        .OnlyWhenStatic(() => IsServerBuild)
         .Executes(() =>
         {
             List<(string rid, string publishDir)> info = [
@@ -107,74 +104,55 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 .SetSelfContained(true)
                 .CombineWith(info, (settings, i) =>
                 {
-                    settings.SetRuntime(i.rid);
-                    settings.SetOutput(i.publishDir);
-
-                    return settings;
+                    return settings
+                        .SetRuntime(i.rid)
+                        .SetOutput(i.publishDir);
                 }));
         });
 
+    string repository = GitHubActions.Instance?.Repository ?? "Portraits-in-Brick-and-Time/Brine-and-Coin";
+
     Target DownloadOldRelease => _ => _
         .DependsOn(Publish)
-        //.OnlyWhenStatic(() => Configuration == Configuration.Release)
+        .OnlyWhenStatic(() => IsServerBuild)
         .Executes(() =>
         {
-            string repository = GitHubActions.Instance?.Repository ?? "Portraits-in-Brick-and-Time/Brine-and-Coin";
-            VelopackTasks.VelopackDownloadGithub(_ => _
-                .SetRepoUrl($"https://github.com/{repository}")
-                .SetToken(GitHubToken)
-                .SetOutputDir(ReleaseDir)
-                .CombineWith(["windows", "linux"], (settings, channel) =>
-                {
-                    settings.SetChannel(channel);
-
-                    return settings;
-                }), 2, true
-            );
+            var channels = new List<string> { "win", "linux" };
+            foreach (var channel in channels)
+            {
+                Velopack($"[{channel}] download github --repoUrl https://github.com/{repository} --token {GitHubToken} -o {ReleaseDir}");
+            }
         });
 
     Target VelopackPack => _ => _
         .DependsOn(DownloadOldRelease)
+        .OnlyWhenStatic(() => IsServerBuild)
         .Executes(() =>
         {
             List<(string channel, string publishDir, string exeName)> info = [
-                ("windows", PublishWinDir, $"{ExeName}.exe"),
+                ("win", PublishWinDir, $"{ExeName}.exe"),
                 ("linux", PublishLinuxDir, ExeName)
             ];
 
-            VelopackTasks.VelopackPack(_ =>
+            foreach (var i in info)
             {
-                _.SetPackVersion(((IHazGitVersion)this).Versioning.LegacySemVer);
-                _.SetUniqueIdentifier(UniqueIdentifier);
-                _.SetPackTitle("Brine and Coin");
-
-                return _.CombineWith(info, (settings, i) =>
-                {
-                    settings.SetChannel(i.channel);
-                    settings.SetPackDir(i.publishDir);
-                    settings.SetMainExe(i.exeName);
-
-                    return settings;
-                });
-            }, 2);
+                string legacySemVer = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
+                Velopack($"[{i.channel}] pack --packVersion {legacySemVer} -u {UniqueIdentifier} --packTitle \"Brine and Coin\" -p {i.publishDir} --mainExe {i.exeName}");
+            }
         });
 
     Target Deploy => _ => _
         .DependsOn(VelopackPack)
+        .OnlyWhenStatic(() => IsServerBuild)
         .Executes(() =>
         {
-            // Windows channel
-            string version = ((IHazGitVersion)this).Versioning.LegacySemVer;
-            ProcessTasks.StartProcess("vpk",
-                $"upload github --channel win --repoUrl https://github.com/{GitHubActions.Instance.Repository} " +
-                $"--releaseName \"{version}\" --tag v{version} --publish --token {GitHubToken}",
-                logOutput: true).AssertZeroExitCode();
+            string version = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
 
-            // Linux channel
-            ProcessTasks.StartProcess("vpk",
-                $"[linux] upload github --merge --channel linux --repoUrl https://github.com/{GitHubActions.Instance.Repository} " +
-                $"--releaseName \"{version}\" --tag v{version} --publish --token {GitHubToken}",
-                logOutput: true).AssertZeroExitCode();
+            var channels = new List<string> { "win", "linux" };
+            foreach (var channel in channels)
+            {
+                Velopack($"upload github --channel {channel} --repoUrl https://github.com/{repository} --token {GitHubToken} --releaseName \"{version}\" --tag v{version} --publish");
+            }
         });
 
 }
