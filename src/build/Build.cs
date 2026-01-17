@@ -152,7 +152,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
             var channels = new List<string> { "win", "linux" };
             foreach (var channel in channels)
             {
-                Velopack($"upload github --channel {channel} --repoUrl https://github.com/{repository} --token {GitHubToken} --releaseName \"{version}\" --tag v{version} --publish");
+                Velopack($"upload github --channel {channel} --repoUrl https://github.com/{repository} --token {GitHubToken} --releaseName \"{version}\" --tag v{version} --publish --merge");
             }
         });
 
