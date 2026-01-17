@@ -1,0 +1,32 @@
+name: Generate Deployment File
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  generate-configuration:
+    name: Generate Configuration
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: 'Cache: .nuke/temp, ~/.nuget/packages'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .nuke/temp
+            ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
+      - name: 'Run: Generate Configuration'
+        run: nuke --generate-configuration GitHubActions_deploy --host GitHubActions
+      - name: 'Commit and Push'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .github/workflows/deploy.yml
+          git commit -m "chore: regenerate deployment configuration" || true
+          git push
