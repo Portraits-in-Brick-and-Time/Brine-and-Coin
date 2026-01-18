@@ -73,7 +73,7 @@ public class GameAssetLoader
         return overworld;
     }
 
-    private CustomCommand[] CreatePersistentCommands()
+    public static (string folder, string path) GetSaveFileName()
     {
         var folder = Path.Combine(
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
@@ -82,6 +82,13 @@ public class GameAssetLoader
             folder,
             "savegame.json"
         );
+
+        return (folder, path);
+    }
+
+    private CustomCommand[] CreatePersistentCommands()
+    {
+        var (folder, path) = GetSaveFileName();
 
         if (!Directory.Exists(folder))
         {

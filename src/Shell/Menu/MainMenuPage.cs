@@ -20,7 +20,8 @@ public class MainMenuPage : MenuPage
         AnsiConsole.Write(new Rule() { Border = BoxBorder.Ascii });
         var prompt = new SelectionPrompt<MenuPage>();
 
-        prompt.AddChoice(new StartGamePage());
+        prompt.AddChoice(new StartNewGamePage());
+        prompt.AddChoice(new LoadGamePage());
         prompt.AddChoice(new CreditsGamePage());
         prompt.AddChoice(new ExitGamePage());
         prompt.Converter = page => page.Title!;
