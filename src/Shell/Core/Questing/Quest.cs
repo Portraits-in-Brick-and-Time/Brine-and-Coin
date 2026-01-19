@@ -29,8 +29,7 @@ public class Quest(string name, IEnumerable<IQuestStep> steps)
             if (_currentStepIndex >= _steps.Count)
             {
                 State = QuestState.Completed;
-                typeof(EventBus).GetMethod("Publish")!.MakeGenericMethod(typeof(QuestCompletedEvent))
-                !.Invoke(null, [new QuestCompletedEvent(Name)]);
+                EventBus.Publish(new QuestCompletedEvent(Name));
             }
         }
     }
