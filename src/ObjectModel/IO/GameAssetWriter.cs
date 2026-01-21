@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using Hocon;
 using LibObjectFile.Elf;
 using NetAF.Assets.Locations;
@@ -37,6 +36,64 @@ public class GameAssetWriter : IDisposable
         _definitionWriters["items"] = WriteItem;
         _definitionWriters["rooms"] = WriteRoom;
         _definitionWriters["regions"] = WriteRegion;
+        _definitionWriters["quests"] = WriteQuest;
+    }
+
+    private void WriteQuest(string name, HoconObject obj)
+    {
+        var description = obj.ContainsKey("description") ? obj.GetField("description").GetString() : string.Empty;
+
+        var model = new Models.Quest.QuestModel();
+        model.Name = name;
+        model.Description = description;
+
+        if (obj.ContainsKey("steps"))
+        {
+            foreach (var step in obj.GetField("steps").GetArray())
+            {
+                if (step.Type == HoconType.Object)
+                {
+                    var stepObj = step.GetObject();
+                    var type = stepObj.GetField("type").GetString();
+
+                    switch (type)
+                    {
+                        case "GoToRoom":
+                            model.Steps.Add(new Models.Quest.Steps.GoToRoomStepModel(stepObj.GetField("roomName").GetString()));
+                            break;
+                        case "CharacterDies":
+                            model.Steps.Add(new Models.Quest.Steps.CharacterDiesStepModel(stepObj.GetField("characterName").GetString()));
+                            break;
+                        case "ItemReceived":
+                            model.Steps.Add(new Models.Quest.Steps.ItemReceivedStepModel(stepObj.GetField("itemName").GetString()));
+                            break;
+                        case "ItemRemoved":
+                            model.Steps.Add(new Models.Quest.Steps.ItemRemovedStepModel(stepObj.GetField("itemName").GetString()));
+                            break;
+                        case "ItemUsed":
+                            model.Steps.Add(new Models.Quest.Steps.ItemUsedStepModel(stepObj.GetField("itemName").GetString()));
+                            break;
+                        case "RegionEntered":
+                            model.Steps.Add(new Models.Quest.Steps.RegionEnteredStepModel(stepObj.GetField("regionName").GetString()));
+                            break;
+                        case "RegionExited":
+                            model.Steps.Add(new Models.Quest.Steps.RegionExitedStepModel(stepObj.GetField("regionName").GetString()));
+                            break;
+                        case "RoomEntered":
+                            model.Steps.Add(new Models.Quest.Steps.RoomEnteredStepModel(stepObj.GetField("roomName").GetString()));
+                            break;
+                        case "RoomExited":
+                            model.Steps.Add(new Models.Quest.Steps.RoomExitedStepModel(stepObj.GetField("roomName").GetString()));
+                            break;
+                        default:
+                            // ignore unknown step types
+                            break;
+                    }
+                }
+            }
+        }
+
+        _customSections.QuestsSection.Elements.Add(model);
     }
 
     public bool IsClosed { get; set; }
@@ -194,7 +251,7 @@ public class GameAssetWriter : IDisposable
             var name = exitObj.GetField("name").GetString();
             var description = exitObj.GetField("description").GetString();
             var isLocked = GetOptionalFieldValue<bool>(exitObj, "isLocked");
-            
+
             model.Exits.Add(new ExitModel()
             {
                 Direction = Enum.Parse<Direction>(direction, true),

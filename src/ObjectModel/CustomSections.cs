@@ -16,6 +16,8 @@ internal class CustomSections
 
     public MetaSection MetaSection { get; }
 
+    public QuestsSection QuestsSection { get; }
+
     private CustomSection[] _allSections;
 
     public CustomSections(ElfFile file)
@@ -25,6 +27,7 @@ internal class CustomSections
         CharactersSection = new(file);
         RoomsSection = new(file);
         RegionsSection = new(file);
+        QuestsSection = new(file);
 
         MetaSection = new(file);
 
@@ -35,7 +38,8 @@ internal class CustomSections
             ItemsSection,
             RoomsSection,
             CharactersSection,
-            RegionsSection
+            RegionsSection,
+            QuestsSection
         ];
     }
 

@@ -1,3 +1,4 @@
+using NetAF.Logging.Events;
 using Spectre.Console;
 
 namespace BrineAndCoin.Core;
@@ -27,7 +28,7 @@ public abstract class MenuPage
         }
 
         Render();
-        if (this is not StartGamePage)
+        if (this is not StartNewGamePage)
         {
             Console.ReadLine();
         }

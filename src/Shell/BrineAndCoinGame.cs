@@ -1,28 +1,54 @@
 using BrineAndCoin.Core;
+using BrineAndCoin.Core.Questing;
+using BrineAndCoin.Questing;
+using BrineAndCoin.Questing.Steps;
+using NetAF.Commands.Persistence;
 using NetAF.Interpretation;
+using NetAF.Logging.Events;
 using NetAF.Logic;
 using NetAF.Logic.Modes;
+using NetAF.Persistence;
 using NetAF.Rendering.FrameBuilders;
 using NetAF.Targets.Console;
 using ObjectModel;
 using ObjectModel.Evaluation;
 using Shell.Core;
 using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Editing.Mapping;
 using SoundFlow.Structs;
 using Splat;
 
 namespace BrineAndCoin;
 
-public class StartGamePage : MenuPage
+public class BrineAndCoinGame
 {
-    public override string? Title => "Start Game";
-    protected override bool RenderTitle { get; } = false;
+    private GameCreator? _gameCreator;
 
-    protected override void Render()
+    private BrineAndCoinGame()
     {
-        Console.Clear();
 
+    }
+
+    public static BrineAndCoinGame NewGame()
+    {
+        return new BrineAndCoinGame
+        {
+            _gameCreator = InitGame()
+        };
+    }
+
+    public static BrineAndCoinGame Load()
+    {
+        return new BrineAndCoinGame
+        {
+            _gameCreator = InitGame(game =>
+            {
+                new Load(GameAssetLoader.GetSaveFileName().path).Invoke(game);
+            })
+        };
+    }
+
+    private static void RegisterServices()
+    {
         var engine = new MiniAudioEngine();
         var playbackDevice = engine.InitializePlaybackDevice(null, AudioFormat.DvdHq);
         playbackDevice.Start();
@@ -33,9 +59,6 @@ public class StartGamePage : MenuPage
         Locator.CurrentMutable.RegisterConstant(writer);
 
         Locator.CurrentMutable.RegisterConstant(new Evaluator());
-        //await writer.PlayAsync("Assets/Texts/intro.txt", "Assets/Voice/intro.mp3");
-
-        InitAndExecuteGame();
     }
 
     private static EndCheckResult IsGameComplete(Game game)
@@ -54,8 +77,10 @@ public class StartGamePage : MenuPage
         return new EndCheckResult(true, "Game Over", "You died!");
     }
 
-    static void InitAndExecuteGame()
+    static GameCreator InitGame(Action<Game>? configure = null)
     {
+        RegisterServices();
+
         var clock = new Clock();
         // Commands have to be added before the asset file is being loaded
         CommandStore.Add("clock.show", clock.CreateCommand());
@@ -88,8 +113,16 @@ public class StartGamePage : MenuPage
 
                             clock.Init(DateTime.Now);
                             Locator.CurrentMutable.RegisterConstant(clock);
+                            Locator.CurrentMutable.RegisterConstant(new QuestManager());
+
+                            configure?.Invoke(game);
                         });
 
-        GameExecutor.Execute(gameCreator, new ConsoleExecutionController());
+        return gameCreator;
+    }
+
+    public void Execute()
+    {
+        GameExecutor.Execute(_gameCreator, new ConsoleExecutionController());
     }
 }
