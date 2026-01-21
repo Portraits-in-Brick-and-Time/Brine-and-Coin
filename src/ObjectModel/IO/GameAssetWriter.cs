@@ -37,6 +37,12 @@ public class GameAssetWriter : IDisposable
         _definitionWriters["items"] = WriteItem;
         _definitionWriters["rooms"] = WriteRoom;
         _definitionWriters["regions"] = WriteRegion;
+        _definitionWriters["quests"] = WriteQuest;
+    }
+
+    private void WriteQuest(string name, HoconObject obj)
+    {
+        throw new NotImplementedException();
     }
 
     public bool IsClosed { get; set; }

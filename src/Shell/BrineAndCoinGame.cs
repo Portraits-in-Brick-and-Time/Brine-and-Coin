@@ -26,14 +26,20 @@ public class BrineAndCoinGame
     {
         var quest = new Quest(
     "find_the_forest",
-    new IQuestStep[]
-    {
+    [
         new GoToRoomStep("village"),
         new GoToRoomStep("forest")
-    });
+    ]);
 
         quest.Start();
+
         EventBus.Subscribe<RoomEntered>(quest.OnEvent);
+        EventBus.Subscribe<RoomExited>(quest.OnEvent);
+        EventBus.Subscribe<RegionEntered>(quest.OnEvent);
+        EventBus.Subscribe<RegionExited>(quest.OnEvent);
+        EventBus.Subscribe<ItemUsed>(quest.OnEvent);
+        EventBus.Subscribe<ItemReceived>(quest.OnEvent);
+        EventBus.Subscribe<ItemRemoved>(quest.OnEvent);
     }
 
     public static BrineAndCoinGame NewGame()
