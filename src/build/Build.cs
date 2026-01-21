@@ -158,6 +158,5 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 Velopack($"upload github --channel {channel} --repoUrl https://github.com/{repository} --token {GitHubToken} --releaseName \"{version}\" --tag v{version} --publish --merge");
             }
         });
-
 }
 
