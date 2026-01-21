@@ -1,4 +1,5 @@
 using MessagePack;
+using ObjectModel.Models.Quest.Steps;
 
 namespace ObjectModel.Models.Quest;
 

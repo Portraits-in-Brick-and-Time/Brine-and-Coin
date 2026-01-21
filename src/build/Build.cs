@@ -19,7 +19,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     "deploy",
     GitHubActionsImage.WindowsLatest,
     OnPushBranches = new[] { "release" },
-    AutoGenerate = true,
+    AutoGenerate = false,
     FetchDepth = 0,
     PublishArtifacts = true,
     EnableGitHubToken = true,
