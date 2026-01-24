@@ -152,7 +152,7 @@ public class GameAssetWriter : IDisposable
 
         foreach (var (attrName, attrValue) in obj.GetField("attributes").GetObject().AsEnumerable())
         {
-            model.Attributes.Add(new NamedRef(attrName), int.Parse(attrValue.GetString()));
+            model.Attributes.Add(new ModelRef(attrName), int.Parse(attrValue.GetString()));
         }
     }
 
@@ -165,7 +165,7 @@ public class GameAssetWriter : IDisposable
 
         foreach (var name in obj.GetField("commands").GetArray())
         {
-            model.Commands.Add(new NamedRef(name.GetString()));
+            model.Commands.Add(new ModelRef(name.GetString()));
         }
     }
 
@@ -288,10 +288,10 @@ public class GameAssetWriter : IDisposable
         var description = obj.GetField("description").GetString();
         var rooms = obj.GetField("rooms").GetObject();
 
-        var roomDict = new Dictionary<NamedRef, Position>();
+        var roomDict = new Dictionary<ModelRef, Position>();
         foreach (var (roomName, roomObj) in rooms)
         {
-            var nameRef = new NamedRef(roomName);
+            var nameRef = new ModelRef(roomName);
             roomDict[nameRef] = Position.Parse(roomObj);
         }
 

@@ -181,7 +181,7 @@ public class GameAssetLoader
     private Exit[] GetExits(RoomModel model)
     {
         var exits = new List<Exit>();
-        
+
         foreach (var exitModel in model.Exits)
         {
             var exit = new Exit(exitModel.Direction, exitModel.IsLocked, new(exitModel.Name),
@@ -198,7 +198,7 @@ public class GameAssetLoader
         {
             return null;
         }
-        
+
         return new(transition =>
         {
             Evaluator evaluator = Locator.Current.GetService<Evaluator>();
@@ -273,7 +273,7 @@ public class GameAssetLoader
         }
     }
 
-    Attribute GetAttributeByRef(NamedRef @ref)
+    Attribute GetAttributeByRef(ModelRef @ref)
     {
         foreach (var attribute in _attributes)
         {
@@ -286,7 +286,7 @@ public class GameAssetLoader
         throw new KeyNotFoundException($"Attribute '{@ref}' not found.");
     }
 
-    T GetByRef<T>(NamedRef @ref, IList<T> collection)
+    T GetByRef<T>(ModelRef @ref, IList<T> collection)
         where T : IExaminable
     {
         foreach (var element in collection)

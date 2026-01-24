@@ -4,5 +4,5 @@ namespace ObjectModel;
 
 internal interface IItemModel
 {
-   List<NamedRef> Items { get; set; }
+   List<ModelRef> Items { get; set; }
 }
