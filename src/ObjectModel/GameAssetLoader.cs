@@ -10,6 +10,7 @@ using NetAF.Commands.Persistence;
 using ObjectModel.Evaluation;
 using ObjectModel.IO;
 using ObjectModel.Models;
+using ObjectModel.Referencing;
 using Splat;
 
 namespace ObjectModel;
@@ -181,7 +182,7 @@ public class GameAssetLoader
     private Exit[] GetExits(RoomModel model)
     {
         var exits = new List<Exit>();
-        
+
         foreach (var exitModel in model.Exits)
         {
             var exit = new Exit(exitModel.Direction, exitModel.IsLocked, new(exitModel.Name),
@@ -198,7 +199,7 @@ public class GameAssetLoader
         {
             return null;
         }
-        
+
         return new(transition =>
         {
             Evaluator evaluator = Locator.Current.GetService<Evaluator>();
@@ -251,13 +252,13 @@ public class GameAssetLoader
         var cmds = new List<CustomCommand>();
         foreach (var @ref in model.Commands)
         {
-            if (CommandStore.TryGet(@ref.Name, out var cmd))
+            if (CommandStore.TryGet(@ref, out var cmd))
             {
                 cmds.Add(cmd);
             }
             else
             {
-                throw new KeyNotFoundException($"Command '{@ref.Name}' not found.");
+                throw new KeyNotFoundException($"Command '{@ref}' not found.");
             }
         }
 
@@ -273,7 +274,7 @@ public class GameAssetLoader
         }
     }
 
-    Attribute GetAttributeByRef(NamedRef @ref)
+    Attribute GetAttributeByRef(ModelRef @ref)
     {
         foreach (var attribute in _attributes)
         {
@@ -286,7 +287,7 @@ public class GameAssetLoader
         throw new KeyNotFoundException($"Attribute '{@ref}' not found.");
     }
 
-    T GetByRef<T>(NamedRef @ref, IList<T> collection)
+    T GetByRef<T>(ModelRef @ref, IList<T> collection)
         where T : IExaminable
     {
         foreach (var element in collection)
