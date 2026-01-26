@@ -34,6 +34,7 @@ public class ModelRefFormatter : IMessagePackFormatter<ModelRef>
             return null;
 
         int index = reader.ReadInt32();
+        
         return SymbolTable.Entries[index].Name.Value;
     }
 }

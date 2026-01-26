@@ -22,16 +22,11 @@ internal abstract class ModelSection<T>(ElfFile file) : CustomSection(file), ISy
 
     protected override void Write(BinaryWriter writer)
     {
-        if (IsCompressed)
-        {
-            serializationOptions = serializationOptions.WithCompression(MessagePackCompression.Lz4Block);
-        }
-
-        writer.Write(MessagePackSerializer.Serialize(Elements, options: serializationOptions));
+        writer.Write(MessagePackSerializer.Serialize(Elements));
     }
 
     protected override void Read(BinaryReader reader)
     {
-        Elements.AddRange(MessagePackSerializer.Deserialize<List<T>>(reader.BaseStream, options: serializationOptions));
+        Elements.AddRange(MessagePackSerializer.Deserialize<List<T>>(reader.BaseStream));
     }
 }

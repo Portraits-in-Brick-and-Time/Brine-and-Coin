@@ -28,9 +28,9 @@ internal class GameAssetReader
                     StandardResolver.Instance
                 );
 
-        MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions.WithResolver(
-            resolver
-        );
+        MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions
+            .WithResolver(resolver)
+            .WithCompression(MessagePackCompression.Lz4Block);
 
         CustomSections = new(File);
         CustomSections.Read();

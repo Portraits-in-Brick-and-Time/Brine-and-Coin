@@ -47,9 +47,9 @@ public class GameAssetWriter : IDisposable
                     StandardResolver.Instance
                 );
 
-        MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions.WithResolver(
-            resolver
-        );
+        MessagePackSerializer.DefaultOptions = MessagePackSerializer.DefaultOptions
+            .WithResolver(resolver)
+            .WithCompression(MessagePackCompression.Lz4Block);
     }
 
     private void WriteQuest(string name, HoconObject obj)
