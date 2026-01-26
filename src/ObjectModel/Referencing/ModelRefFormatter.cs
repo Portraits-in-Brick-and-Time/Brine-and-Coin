@@ -5,7 +5,6 @@ using MessagePack.Formatters;
 
 namespace ObjectModel.Referencing;
 
-//[MessagePack.MessagePackFormatter(typeof(ModelRefFormatter))]
 [MessagePack.ExcludeFormatterFromSourceGeneratedResolver]
 public class ModelRefFormatter : IMessagePackFormatter<ModelRef>
 {
@@ -34,7 +33,7 @@ public class ModelRefFormatter : IMessagePackFormatter<ModelRef>
             return null;
 
         int index = reader.ReadInt32();
-        
+
         return SymbolTable.Entries[index].Name.Value;
     }
 }
