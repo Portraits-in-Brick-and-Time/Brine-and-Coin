@@ -349,7 +349,9 @@ public class GameAssetWriter : IDisposable
             return;
         }
 
-        _customSections.Write(_symbolTable);
+        _customSections.PopulateSymbolTable(_symbolTable);
+
+        _customSections.Write();
 
         _symbolTable.Link = _strTable;
 

@@ -1,3 +1,4 @@
+using System.Linq;
 using LibObjectFile.Elf;
 using ObjectModel.Sections;
 
@@ -43,19 +44,29 @@ internal class CustomSections
         ];
     }
 
-    public void Write(ElfSymbolTable symbolTable)
+    public void Write()
     {
         foreach (var section in _allSections)
         {
-            section.Write(symbolTable, this);
+            section.Write(this);
         }
     }
-    
+
     public void Read()
     {
         foreach (var section in _allSections)
         {
             section.Read(this);
+        }
+    }
+
+    public void PopulateSymbolTable(ElfSymbolTable symbolTable)
+    {
+        foreach (var section in _allSections
+            .Where(s => s is ISymbolTablePopulatable)
+            .OfType<ISymbolTablePopulatable>())
+        {
+            section.PopulateSymbolTable(symbolTable);
         }
     }
 }

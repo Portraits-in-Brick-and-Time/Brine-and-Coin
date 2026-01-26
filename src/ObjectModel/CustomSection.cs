@@ -9,7 +9,6 @@ internal abstract class CustomSection
 {
     protected ElfStreamSection Section;
     protected ElfFile File => file;
-    private ElfSymbolTable _symbolTable;
 
     protected CustomSections CustomSections;
 
@@ -19,7 +18,6 @@ internal abstract class CustomSection
     public CustomSection(ElfFile file)
     {
         this.file = file;
-        IsCompressed = true;
     }
 
     public abstract string Name { get; }
@@ -50,9 +48,8 @@ internal abstract class CustomSection
     /// <summary>
     /// Prepares a new instance of the <see cref="CustomSection"/> class for writing.
     /// </summary>
-    public void PrepareForWriting(ElfSymbolTable symbolTable, CustomSections customSections)
+    public void PrepareForWriting(CustomSections customSections)
     {
-        _symbolTable = symbolTable;
         CustomSections = customSections;
 
         Section = new ElfStreamSection(ElfSectionSpecialType.Text, new MemoryStream())
@@ -60,6 +57,7 @@ internal abstract class CustomSection
             Name = Name,
             Flags = ElfSectionFlags.Alloc | ElfSectionFlags.Group
         };
+        IsCompressed = true;
 
         File.Add(Section);
     }
@@ -70,13 +68,12 @@ internal abstract class CustomSection
     public void PrepareForReading(CustomSections customSections)
     {
         Section = (ElfStreamSection)file.Sections.First(_ => _.Name.Value == Name);
-        _symbolTable = (ElfSymbolTable)file.Sections.First(_ => _ is ElfSymbolTable);
         CustomSections = customSections;
     }
 
-    public void Write(ElfSymbolTable symbolTable, CustomSections customSections)
+    public void Write(CustomSections customSections)
     {
-        PrepareForWriting(symbolTable, customSections);
+        PrepareForWriting(customSections);
         var writer = new BinaryWriter(Section.Stream);
         Write(writer);
     }
@@ -91,9 +88,9 @@ internal abstract class CustomSection
     protected abstract void Write(BinaryWriter writer);
     protected abstract void Read(BinaryReader reader);
 
-    protected void AddSymbol(string name, ulong index, ulong size)
+    protected void AddSymbol(string name, ulong index, ulong size, ElfSymbolTable symbolTable)
     {
-        foreach (var symbol in _symbolTable.Entries)
+        foreach (var symbol in symbolTable.Entries)
         {
             if (symbol.Name == name)
             {
@@ -101,7 +98,7 @@ internal abstract class CustomSection
             }
         }
 
-        _symbolTable.Entries.Add(
+        symbolTable.Entries.Add(
             new ElfSymbol()
             {
                 Bind = ElfSymbolBind.Global,
