@@ -130,7 +130,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
     Target VelopackPack => _ => _
         .DependsOn(DownloadOldRelease)
         .OnlyWhenStatic(() => IsServerBuild)
-        .Produces($"{ExeName}.exe", $"{ExeName}.appimage")
+        .Produces($"{PublishWinDir / ExeName}.exe", $"{PublishLinuxDir / ExeName}.appimage")
         .Executes(() =>
         {
             List<(string channel, string publishDir, string exeName)> info = [
