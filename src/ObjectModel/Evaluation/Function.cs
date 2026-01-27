@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ObjectModel.Evaluation;
 
-internal interface IFunction : IEvaluable
+public interface IFunction : IEvaluable
 {
     string Name { get; }
     List<string> Parameters { get; }
@@ -12,7 +12,7 @@ internal interface IFunction : IEvaluable
 }
 
 
-internal abstract class Function : IFunction
+public abstract class Function : IFunction
 {
     public abstract string Name { get; }
     public abstract List<string> Parameters { get; }
@@ -26,7 +26,7 @@ internal abstract class Function : IFunction
     public abstract object Invoke(params object[] parameters);
 }
 
-internal abstract class Function<T1, T2, TResult> : Function
+public abstract class Function<T1, T2, TResult> : Function
 {
     public override object Invoke(params object[] parameters)
     {
@@ -39,7 +39,7 @@ internal abstract class Function<T1, T2, TResult> : Function
     public abstract TResult Invoke(T1 param1, T2 param2);
 }
 
-internal abstract class Function<T1, TResult> : Function
+public abstract class Function<T1, TResult> : Function
 {
     public override object Invoke(params object[] parameters)
     {

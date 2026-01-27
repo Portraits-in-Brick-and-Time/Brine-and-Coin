@@ -138,14 +138,31 @@ public class GameAssetLoader
     {
         foreach (var itemModel in customSections.ItemsSection.Elements)
         {
-            var item = new Item(itemModel.Name, itemModel.Description, commands: GetCommands(itemModel))
+            var item = new Item(itemModel.Name, itemModel.Description, commands: GetCommands(itemModel),
+                interaction: GetInteraction(itemModel.OnInteraction))
             {
                 IsPlayerVisible = itemModel.IsPlayerVisible
             };
 
             ApplyAttributes(item, itemModel);
+            
             _items.Add(item);
         }
+    }
+
+    private InteractionCallback GetInteraction(List<IEvaluable> onInteraction)
+    {
+        if (onInteraction.Count == 0)
+        {
+            return null;
+        }
+
+        return new(item =>
+        {
+            EvaluateCode(onInteraction);
+
+            return new Interaction(InteractionResult.NoChange, item);
+        });
     }
 
     private void LoadRegions()
@@ -209,10 +226,19 @@ public class GameAssetLoader
 
         return new(transition =>
         {
-            Evaluator evaluator = Locator.Current.GetService<Evaluator>();
-            var reaction = evaluator.Evaluate<Reaction>(code, evaluator.RootScope);
-            return new(reaction, true);
+            return new(EvaluateCode<Reaction>(code), true);
         });
+    }
+
+    private object EvaluateCode(List<IEvaluable> code)
+    {
+        Evaluator evaluator = Locator.Current.GetService<Evaluator>();
+        return evaluator.Evaluate(code, evaluator.RootScope);
+    }
+
+    private T EvaluateCode<T>(List<IEvaluable> code)
+    {
+        return (T)EvaluateCode(code);
     }
 
     private void AddNpcs(Room target, RoomModel model)

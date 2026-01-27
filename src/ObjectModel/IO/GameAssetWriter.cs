@@ -230,11 +230,12 @@ public class GameAssetWriter : IDisposable
 
         var model = new ItemModel(name, description)
         {
-            IsPlayerVisible = GetOptionalFieldValue<bool>(obj, "visible")
+            IsPlayerVisible = GetOptionalFieldValue<bool>(obj, "visible", true)
         };
 
         ApplyAttributes(obj, model);
         ApplyCommands(obj, model);
+        ApplyCode(obj, model.OnInteraction, "on_interaction");
 
         _customSections.ItemsSection.Elements.Add(model);
     }
@@ -282,12 +283,12 @@ public class GameAssetWriter : IDisposable
 
     private void ApplyCode(HoconObject obj, List<IEvaluable> code, string objName)
     {
-        if (!obj.ContainsKey(objName))
+        if (!obj.TryGetValue(objName, out HoconField value))
         {
             return;
         }
 
-        foreach (var c in obj[objName].GetObject())
+        foreach (var c in value.GetObject())
         {
             switch (c.Key)
             {
@@ -295,7 +296,14 @@ public class GameAssetWriter : IDisposable
                     code.Add(ReactionModel.FromObject(c));
                     break;
                 default:
-                    code.Add(VariableDefinitonModel.FromObject(c));
+                    if (c.Value.Type == HoconType.Object)
+                    {
+                        code.Add(CallFuncModel.FromObject(c));
+                    }
+                    else
+                    {
+                        code.Add(VariableDefinitonModel.FromObject(c));
+                    }
                     break;
             }
         }
@@ -339,10 +347,10 @@ public class GameAssetWriter : IDisposable
         _customSections.AttributesSection.Elements.Add(model);
     }
 
-    private T GetOptionalFieldValue<T>(HoconObject obj, string fieldName)
+    private T GetOptionalFieldValue<T>(HoconObject obj, string fieldName, T defaultValue = default)
         where T : IParsable<T>
     {
-        return obj.ContainsKey(fieldName) ? T.Parse(obj.GetField(fieldName).GetString(), CultureInfo.InvariantCulture) : default;
+        return obj.ContainsKey(fieldName) ? T.Parse(obj.GetField(fieldName).GetString(), CultureInfo.InvariantCulture) : defaultValue;
     }
 
     public void Close()
