@@ -29,7 +29,7 @@ internal class CallFuncModel(string name, Dictionary<string, IEvaluable> paramet
             evaluatedParams.Add(param.Value.Evaluate(evaluator, scope));
         }
 
-        return func.Invoke([.. Parameters]);
+        return func.Invoke([.. evaluatedParams]);
     }
 
     public static IEvaluable FromObject(KeyValuePair<string, HoconField> rootObj)
