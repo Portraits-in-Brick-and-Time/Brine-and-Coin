@@ -59,17 +59,19 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .ProceedAfterFailure()
         .Executes(() =>
         {
-            if (!Directory.Exists("Assets"))
+            AbsolutePath assetsDir = Solution.Shell.BrineAndCoin.Directory / "Assets";
+            if (!Directory.Exists(assetsDir))
             {
-                Directory.CreateDirectory("Assets");
+                Directory.CreateDirectory(assetsDir);
             }
 
-            if (!File.Exists(AssetsFilename))
+            AbsolutePath assetPath = assetsDir / AssetsFilename;
+            if (!File.Exists(assetPath))
             {
-                File.Create(AssetsFilename).Close();
+                File.Create(assetPath).Close();
             }
 
-            using var elf = File.Create(Solution.Shell.BrineAndCoin.Directory / "Assets" / AssetsFilename);
+            using var elf = File.Create(assetPath);
             var objectWriter = new GameAssetWriter(elf);
             var sources = Solution.Shell.BrineAndCoin.GetItems("AssetSources");
             foreach (var source in sources)
