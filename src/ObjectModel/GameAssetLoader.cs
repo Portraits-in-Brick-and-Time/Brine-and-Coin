@@ -159,9 +159,9 @@ public class GameAssetLoader
 
         return new(item =>
         {
-            EvaluateCode(onInteraction);
+            var interaction = EvaluateCode<Interaction>(onInteraction);
 
-            return new Interaction(InteractionResult.NoChange, item);
+            return new Interaction(interaction.Result, item, interaction.Description);
         });
     }
 
@@ -226,6 +226,10 @@ public class GameAssetLoader
 
         return new(transition =>
         {
+            Evaluator evaluator = Locator.Current.GetService<Evaluator>();
+            var scope = evaluator.RootScope.NewSubScope();
+            //Todo: add transition to scope when mutliple value types supported
+            //scope.AddOrSet("transition", transition);
             return new(EvaluateCode<Reaction>(code), true);
         });
     }

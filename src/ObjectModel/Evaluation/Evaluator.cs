@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ObjectModel.Models.Code;
 
 namespace ObjectModel.Evaluation;
 
@@ -10,6 +9,7 @@ public class Evaluator
     public Evaluator()
     {
         RootScope.AddFunction(new Functions.AddNoteFunction());
+        RootScope.AddFunction(new Functions.InteractionFunction());
     }
 
     public T Evaluate<T>(List<IEvaluable> code, Scope scope)
