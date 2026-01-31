@@ -230,19 +230,19 @@ public class GameAssetLoader
             var scope = evaluator.RootScope.NewSubScope();
             //Todo: add transition to scope when mutliple value types supported
             //scope.AddOrSet("transition", transition);
-            return new(EvaluateCode<Reaction>(code), true);
+            return new(EvaluateCode<Reaction>(code, scope), true);
         });
     }
 
-    private object EvaluateCode(List<IEvaluable> code)
+    private object EvaluateCode(List<IEvaluable> code, Scope scope = null)
     {
         Evaluator evaluator = Locator.Current.GetService<Evaluator>();
-        return evaluator.Evaluate(code, evaluator.RootScope);
+        return evaluator.Evaluate(code, scope ?? evaluator.RootScope);
     }
 
-    private T EvaluateCode<T>(List<IEvaluable> code)
+    private T EvaluateCode<T>(List<IEvaluable> code, Scope scope = null)
     {
-        return (T)EvaluateCode(code);
+        return (T)EvaluateCode(code, scope ?? Locator.Current.GetService<Evaluator>().RootScope);
     }
 
     private void AddNpcs(Room target, RoomModel model)
