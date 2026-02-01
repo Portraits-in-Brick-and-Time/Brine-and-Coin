@@ -22,5 +22,4 @@ internal class CharacterModel : GameObjectModel, IItemModel
 
     [Key(5)]
     public List<ModelRef> Items { get; set; } = [];
-
 }

@@ -25,7 +25,6 @@ public class BrineAndCoinGame
 
     private BrineAndCoinGame()
     {
-
     }
 
     public static BrineAndCoinGame NewGame()

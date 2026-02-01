@@ -67,5 +67,4 @@ internal class ValueModel(object value) : IEvaluable
     {
        return FromObject(rootObj.Value.Value);
     }
-
 }

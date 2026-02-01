@@ -12,7 +12,6 @@ public interface IFunction : IEvaluable
     object Invoke(params object[] parameters);
 }
 
-
 public abstract class Function : IFunction
 {
     public abstract string Name { get; }
