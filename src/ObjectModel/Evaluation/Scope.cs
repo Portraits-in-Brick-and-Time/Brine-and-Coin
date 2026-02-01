@@ -20,7 +20,7 @@ public class Scope
         var scope = this;
         while (scope != null)
         {
-            if (_variables.TryGetValue(name, out var value))
+            if (scope._variables.TryGetValue(name, out var value))
             {
                 return value;
             }

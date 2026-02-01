@@ -5,10 +5,9 @@ using ObjectModel.Models.Code;
 
 namespace ObjectModel.Evaluation;
 
-[Union(0, typeof(ReactionModel))]
+[Union(0, typeof(ValueModel))]
 [Union(1, typeof(VariableDefinitonModel))]
-[Union(2, typeof(ValueModel))]
-[Union(3, typeof(CallFuncModel))]
+[Union(2, typeof(CallFuncModel))]
 public interface IEvaluable
 {
     object Evaluate(Evaluator evaluator, Scope scope);

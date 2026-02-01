@@ -1,17 +1,16 @@
-using System;
 using System.Collections.Generic;
 using NetAF.Commands;
 
 namespace ObjectModel.Evaluation.Functions;
 
-internal class ReactionFunction : Function<string, string, Reaction>
+internal class ReactionFunction : Function<ReactionResult, string, Reaction>
 {
     public override string Name => "reaction";
 
     public override List<string> Parameters => ["type", "description"];
 
-    public override Reaction Invoke(string type, string description)
+    public override Reaction Invoke(ReactionResult type, string description)
     {
-        return new Reaction(Enum.Parse<ReactionResult>(type), description);
+        return new Reaction(type, description);
     }
 }
