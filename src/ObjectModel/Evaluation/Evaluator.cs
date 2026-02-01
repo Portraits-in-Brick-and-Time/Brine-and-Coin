@@ -9,6 +9,7 @@ public class Evaluator
     public Evaluator()
     {
         RootScope.AddFunction(new Functions.AddNoteFunction());
+        RootScope.AddFunction(new Functions.ReactionFunction());
         RootScope.AddFunction(new Functions.InteractionFunction());
     }
 

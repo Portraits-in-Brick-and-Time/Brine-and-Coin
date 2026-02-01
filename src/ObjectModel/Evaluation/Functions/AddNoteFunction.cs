@@ -12,8 +12,7 @@ internal class AddNoteFunction : Function<string, string, object>
 
     public override object Invoke(string name, string content)
     {
-        GameExecutor.ExecutingGame?
-            .NoteManager.Add(name, content);
+        GameExecutor.ExecutingGame?.NoteManager.Add(name, content);
 
         return null;
     }
