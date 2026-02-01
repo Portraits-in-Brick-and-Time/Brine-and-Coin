@@ -59,7 +59,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .ProceedAfterFailure()
         .Executes(() =>
         {
-            AbsolutePath assetsDir = Solution.Shell.BrineAndCoin.Directory / "Assets";
+            AbsolutePath assetsDir = Solution.BrineAndCoin.Directory / "Assets";
             if (!Directory.Exists(assetsDir))
             {
                 Directory.CreateDirectory(assetsDir);
@@ -73,10 +73,10 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 
             using var elf = File.Create(assetPath);
             var objectWriter = new GameAssetWriter(elf);
-            var sources = Solution.Shell.BrineAndCoin.GetItems("AssetSources");
+            var sources = Solution.BrineAndCoin.GetItems("AssetSources");
             foreach (var source in sources)
             {
-                objectWriter.WriteObjects(Solution.Shell.BrineAndCoin.Directory / source);
+                objectWriter.WriteObjects(Solution.BrineAndCoin.Directory / source);
             }
             objectWriter.Close();
             Log.Information($"Compiled assets to {AssetsFilename}");
@@ -86,7 +86,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .DependsOn(Clean, BuildAssets)
         .Executes(() =>
         {
-            var filename = Solution.Shell.BrineAndCoin.Path;
+            var filename = Solution.BrineAndCoin.Path;
             DotNetBuild(s => s
                 .SetProjectFile(filename)
                 .SetConfiguration(((IHazConfiguration)this).Configuration));
@@ -102,7 +102,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 ("linux-x64", PublishLinuxDir)
             ];
 
-            var filename = Solution.Shell.BrineAndCoin.Path;
+            var filename = Solution.BrineAndCoin.Path;
             DotNetPublish(s => s
                 .SetProject(filename)
                 .SetConfiguration(((IHazConfiguration)this).Configuration)
