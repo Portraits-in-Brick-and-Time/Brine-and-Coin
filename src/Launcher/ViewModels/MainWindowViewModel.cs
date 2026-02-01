@@ -11,6 +11,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private int _progressValue;
 
+    [ObservableProperty]
+    private string _changelog = string.Empty;
+
     [RelayCommand]
     async Task CheckForUpdatesAsync()
     {
@@ -26,7 +29,8 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        await mgr.DownloadUpdatesAsync(newVersion, progress =>
+        Changelog = newVersion.TargetFullRelease.NotesMarkdown;
+                await mgr.DownloadUpdatesAsync(newVersion, progress =>
         {
             ProgressValue = progress;
         });
