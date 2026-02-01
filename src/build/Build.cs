@@ -86,7 +86,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .DependsOn(Clean, BuildAssets)
         .Executes(() =>
         {
-            var filename = Solution.BrineAndCoin.Path;
+            var filename = Solution.Launcher.Path;
             DotNetBuild(s => s
                 .SetProjectFile(filename)
                 .SetConfiguration(((IHazConfiguration)this).Configuration));
@@ -102,11 +102,11 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
                 ("linux-x64", PublishLinuxDir)
             ];
 
-            var filename = Solution.BrineAndCoin.Path;
+            var filename = Solution.Launcher.Path;
             DotNetPublish(s => s
                 .SetProject(filename)
                 .SetConfiguration(((IHazConfiguration)this).Configuration)
-                .SetSelfContained(true)
+                .SetSelfContained(false)
                 .CombineWith(info, (settings, i) =>
                 {
                     return settings
