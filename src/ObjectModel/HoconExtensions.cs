@@ -1,21 +1,20 @@
 using System.Linq;
 using Hocon;
-using NetAF.Targets.Text.Rendering.FrameBuilders;
 
 namespace ObjectModel;
 
 public static class HoconExtensions {
-    extension(HoconField field)
+    extension(HoconValue value)
     {
         public object GetNumber()
         {
-            if (field.Value.First() is HoconLong)
+            if (value.First() is HoconLong)
             {
-                return long.Parse(field.Value.Raw);
+                return long.Parse(value.Raw);
             }
-            else if (field.Value.First() is HoconDouble)
+            else if (value.First() is HoconDouble)
             {
-                return double.Parse(field.Value.Raw);
+                return double.Parse(value.Raw);
             }
 
             throw new System.InvalidOperationException("Field is not a number.");
@@ -23,7 +22,7 @@ public static class HoconExtensions {
 
         public bool GetBoolean()
         {
-            return bool.Parse(field.Value.Raw);
+            return bool.Parse(value.Raw);
         }
     }
 }
