@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -26,7 +28,7 @@ public partial class MainWindowViewModel : ObservableObject
         var newVersion = await mgr.CheckForUpdatesAsync();
         if (newVersion == null)
         {
-            return;
+            goto start;
         }
 
         Changelog = newVersion.TargetFullRelease.NotesMarkdown;
@@ -36,5 +38,9 @@ public partial class MainWindowViewModel : ObservableObject
         });
 
         mgr.ApplyUpdatesAndRestart(newVersion);
+
+start:
+        Process.Start("Portraits_in_Brick_and_Time_-_Brine_And_Coin-Game.exe");
+        Environment.Exit(0);
     }
 }
