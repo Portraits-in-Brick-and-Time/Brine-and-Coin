@@ -48,4 +48,9 @@ public class Clock : IEvaluable
             return new Reaction(ReactionResult.Inform, "It is " + GameExecutor.ExecutingGame.VariableManager.Get("clock.time"));
         });
     }
+
+    public void Set(string time)
+    {
+        Locator.Current.GetService<Game>()!.VariableManager.Add("clock.time", time);
+    }
 }
