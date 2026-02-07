@@ -10,8 +10,8 @@
     <PackageReference Include="Hocon" Version="2.0.4" />
     <PackageReference Include="LibObjectFile" Version="2.1.0" />
     <PackageReference Include="MessagePack" Version="3.1.4" />
-    <PackageReference Include="NetAF" Version="3.10.8" />
-    <PackageReference Include="Splat" Version="19.1.1" />
+    <PackageReference Include="NetAF" Version="3.11.4" />
+    <PackageReference Include="Splat" Version="19.2.1" />
   </ItemGroup>
 
 </Project>

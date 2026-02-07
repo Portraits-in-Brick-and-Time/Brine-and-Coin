@@ -5,7 +5,7 @@ using MessagePack.Formatters;
 
 namespace ObjectModel.Referencing;
 
-[MessagePack.ExcludeFormatterFromSourceGeneratedResolver]
+[ExcludeFormatterFromSourceGeneratedResolver]
 public class ModelRefFormatter : IMessagePackFormatter<ModelRef>
 {
     public ElfSymbolTable SymbolTable { get; set; }
