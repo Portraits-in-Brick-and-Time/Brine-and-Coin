@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using BrineAndCoin.Launcher.ViewModels;
+using Markdown.Avalonia.Full;
 
 namespace BrineAndCoin.Launcher;
 

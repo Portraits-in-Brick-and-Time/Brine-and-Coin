@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,10 +43,27 @@ public partial class MainWindowViewModel : ObservableObject
             }
 
             sb.AppendLine($"### {release.Name}");
-            sb.AppendLine(release.Body);
+            sb.AppendLine(ReplaceUrlsWithMarkdownLinks(release.Body));
             sb.AppendLine();
         }
         Changelog = sb.ToString();
+    }
+
+    private static string ReplaceUrlsWithMarkdownLinks(string markdownText)
+    {
+        var urlRegex = new Regex(@"(?:https?://[^\s<>""]+)", RegexOptions.IgnoreCase);
+
+        return urlRegex.Replace(markdownText, match =>
+        {
+            var url = match.Value;
+
+            var lastSlashIndex = url.LastIndexOf('/');
+            var title = lastSlashIndex >= 0 && lastSlashIndex < url.Length - 1
+                ? url[(lastSlashIndex + 1)..]
+                : url;
+
+            return $"[{title}]({url})";
+        });
     }
 
     [RelayCommand]
