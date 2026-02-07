@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Nuke.Common;
@@ -59,27 +60,34 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .ProceedAfterFailure()
         .Executes(() =>
         {
-            AbsolutePath assetsDir = Solution.BrineAndCoin.Directory / "Assets";
+            var assetsDir = Solution.BrineAndCoin.Directory / "Assets";
             if (!Directory.Exists(assetsDir))
             {
                 Directory.CreateDirectory(assetsDir);
             }
 
-            AbsolutePath assetPath = assetsDir / AssetsFilename;
+            var assetPath = assetsDir / AssetsFilename;
             if (!File.Exists(assetPath))
             {
                 File.Create(assetPath).Close();
             }
 
-            using var elf = File.Create(assetPath);
-            var objectWriter = new GameAssetWriter(elf);
-            var sources = Solution.BrineAndCoin.GetItems("AssetSources");
-            foreach (var source in sources)
+            try
             {
-                objectWriter.WriteObjects(Solution.BrineAndCoin.Directory / source);
+                using var elf = File.Create(assetPath);
+                var objectWriter = new GameAssetWriter(elf);
+                var sources = Solution.BrineAndCoin.GetItems("AssetSources");
+                foreach (var source in sources)
+                {
+                    objectWriter.WriteObjects(Solution.BrineAndCoin.Directory / source);
+                }
+                objectWriter.Close();
+                Log.Information($"Compiled assets to {AssetsFilename}");
             }
-            objectWriter.Close();
-            Log.Information($"Compiled assets to {AssetsFilename}");
+            catch (Exception e)
+            {
+                Log.Error(e, "Error writing assets");
+            }
         });
 
     Target Build => _ => _
@@ -142,7 +150,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
 
             foreach (var i in info)
             {
-                string legacySemVer = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
+                var legacySemVer = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
                 var mainExePath = (AbsolutePath)i.publishDir / i.exeName;
 
                 Velopack(
@@ -160,7 +168,7 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
         .OnlyWhenStatic(() => IsServerBuild)
         .Executes(() =>
         {
-            string version = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
+            var version = ((IHazGitVersion)this).Versioning.MajorMinorPatch;
 
             var channels = new List<string> { "win", "linux" };
             foreach (var channel in channels)
