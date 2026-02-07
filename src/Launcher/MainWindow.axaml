@@ -7,12 +7,7 @@
         x:Class="BrineAndCoin.Launcher.MainWindow" Icon="icon.ico" WindowStartupLocation="CenterScreen"
         Title="Portraits in Brick and Time - Brine and Coin">
     <Grid>
-        <StackPanel Margin="15" VerticalAlignment="Stretch">
-            <Image />
-            <GroupBox Header="Changelog">
-                <md:MarkdownScrollViewer Markdown="{Binding Changelog, Mode=TwoWay}" />
-            </GroupBox>
-        </StackPanel>
+        <md:MarkdownScrollViewer Markdown="{Binding Changelog, Mode=TwoWay}" Margin="15" VerticalAlignment="Stretch" />
 
         <Grid VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" ColumnDefinitions="*,Auto">
             <ProgressBar Height="20" Margin="10" Value="{Binding ProgressValue, Mode=TwoWay}" />

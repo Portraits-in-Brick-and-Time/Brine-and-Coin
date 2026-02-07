@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,13 +23,29 @@ public partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel()
     {
+        SetChangelog().ConfigureAwait(false);
+    }
+
+    private async Task SetChangelog()
+    {
         var client = new GitHubClient(new ProductHeaderValue("Brine-and-Coin-Launcher"));
 
         var repoOwner = "Portraits-in-Brick-and-Time";
         var repoName = "Brine-and-Coin";
 
-        var latestRelease = client.Repository.Release.GetLatest(repoOwner, repoName).Result;
-        Changelog = latestRelease.Body;
+        var sb = new StringBuilder();
+        foreach (var release in await client.Repository.Release.GetAll(repoOwner, repoName))
+        {
+            if (release.Prerelease || release.Draft)
+            {
+                continue;
+            }
+
+            sb.AppendLine($"### {release.Name}");
+            sb.AppendLine(release.Body);
+            sb.AppendLine();
+        }
+        Changelog = sb.ToString();
     }
 
     [RelayCommand]

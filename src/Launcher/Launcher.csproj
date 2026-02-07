@@ -25,7 +25,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="GroupBox.Avalonia" Version="11.0.0" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Include="Octokit" Version="14.0.0" />
     <PackageReference Include="Velopack" Version="0.0.1298" />
