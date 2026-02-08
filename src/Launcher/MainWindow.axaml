@@ -3,15 +3,40 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="BrineAndCoin.Launcher.MainWindow" Icon="icon.ico" WindowStartupLocation="CenterScreen"
-        Title="Portraits in Brick and Time - Brine and Coin">
-    <Grid>
-        <md:MarkdownScrollViewer Markdown="{Binding Changelog, Mode=TwoWay}" Margin="15" VerticalAlignment="Stretch" />
+        x:Class="BrineAndCoin.Launcher.MainWindow"
+        Icon="icon.ico"
+        Title="Portraits in Brick and Time - Brine and Coin"
+        WindowStartupLocation="CenterScreen"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        mc:Ignorable="d">
 
-        <Grid VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" ColumnDefinitions="*,Auto">
-            <ProgressBar Height="20" Margin="10" Value="{Binding ProgressValue, Mode=TwoWay}" />
-            <Button Grid.Column="1" Command="{Binding CheckForUpdatesCommand}">Launch Game</Button>
+    <Grid RowDefinitions="*,Auto" Margin="16">
+        <!-- Changelog -->
+        <Border Grid.Row="0"
+                CornerRadius="6"
+                Padding="12"
+                Background="{DynamicResource ThemeBackgroundBrush}">
+            <md:MarkdownScrollViewer Markdown="{Binding Changelog}"
+                                     VerticalAlignment="Stretch" />
+        </Border>
+
+        <!-- Status + Button -->
+        <Grid Grid.Row="1"
+              Margin="0,12,0,0"
+              ColumnDefinitions="*,Auto"
+              VerticalAlignment="Bottom">
+            <ProgressBar Height="20"
+                         Margin="0,0,12,0"
+                         Value="{Binding ProgressValue}" />
+
+            <Button Grid.Column="1"
+                    MinWidth="120"
+                    Padding="12,4"
+                    HorizontalAlignment="Right"
+                    Command="{Binding CheckForUpdatesCommand}">
+                Launch Game
+            </Button>
         </Grid>
     </Grid>
 </Window>
