@@ -7,7 +7,7 @@ internal class ReactionFunction : Function<ReactionResult, string, Reaction>
 {
     public override string Name => "reaction";
 
-    public override List<string> Parameters => ["type", "description"];
+    public override string[] Parameters => ["type", "description"];
 
     public override Reaction Invoke(ReactionResult type, string description)
     {

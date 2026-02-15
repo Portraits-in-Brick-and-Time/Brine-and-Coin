@@ -8,7 +8,7 @@ public class SetTimeFunction : Function<string, object>
 {
     public override string Name => "clock.setTime";
 
-    public override List<string> Parameters => ["time"];
+    public override string[] Parameters => ["time"];
 
     public override object Invoke(string time)
     {

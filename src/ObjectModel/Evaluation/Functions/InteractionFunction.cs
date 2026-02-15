@@ -7,7 +7,7 @@ internal class InteractionFunction : Function<InteractionResult, string, Interac
 {
     public override string Name => "interaction";
 
-    public override List<string> Parameters => ["result", "description"];
+    public override string[] Parameters => ["result", "description"];
 
     public override Interaction Invoke(InteractionResult result, string description)
     {

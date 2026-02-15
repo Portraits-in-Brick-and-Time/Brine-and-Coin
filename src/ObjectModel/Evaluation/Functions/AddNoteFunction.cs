@@ -8,7 +8,7 @@ internal class AddNoteFunction : Function<string, string, object>
 {
     public override string Name => "add_note";
 
-    public override List<string> Parameters => ["name", "content"];
+    public override string[] Parameters => ["name", "content"];
 
     public override object Invoke(string name, string content)
     {

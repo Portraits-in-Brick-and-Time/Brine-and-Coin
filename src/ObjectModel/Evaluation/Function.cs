@@ -7,7 +7,7 @@ namespace ObjectModel.Evaluation;
 public interface IFunction : IEvaluable
 {
     string Name { get; }
-    List<string> Parameters { get; }
+    string[] Parameters { get; }
 
     object Invoke(params object[] parameters);
 }
@@ -15,7 +15,7 @@ public interface IFunction : IEvaluable
 public abstract class Function : IFunction
 {
     public abstract string Name { get; }
-    public abstract List<string> Parameters { get; }
+    public abstract string[] Parameters { get; }
 
     public object Evaluate(Evaluator evaluator, Scope scope)
     {
