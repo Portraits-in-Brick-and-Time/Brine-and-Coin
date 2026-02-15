@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using LibObjectFile.Elf;
+using ObjectModel.Evaluation;
 using ObjectModel.Sections;
 
 namespace ObjectModel;
@@ -19,6 +21,8 @@ internal class CustomSections
 
     public QuestsSection QuestsSection { get; }
 
+    public FunctionsSection FunctionsSection { get; }
+
     private readonly CustomSection[] _allSections;
 
     public CustomSections(ElfFile file)
@@ -31,10 +35,12 @@ internal class CustomSections
         QuestsSection = new(file);
 
         MetaSection = new(file);
+        FunctionsSection = new(file);
 
         _allSections =
         [
             MetaSection,
+            FunctionsSection,
             AttributesSection,
             ItemsSection,
             RoomsSection,
@@ -62,9 +68,7 @@ internal class CustomSections
 
     public void PopulateSymbolTable(ElfSymbolTable symbolTable)
     {
-        foreach (var section in _allSections
-            .Where(s => s is ISymbolTablePopulatable)
-            .OfType<ISymbolTablePopulatable>())
+        foreach (var section in _allSections.OfType<ISymbolTablePopulatable>())
         {
             section.PopulateSymbolTable(symbolTable);
         }

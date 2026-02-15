@@ -20,12 +20,12 @@ internal abstract class ModelSection<T>(ElfFile file) : CustomSection(file), ISy
         }
     }
 
-    protected override void Write(BinaryWriter writer)
+    protected sealed override void Write(BinaryWriter writer)
     {
         writer.Write(MessagePackSerializer.Serialize(Elements));
     }
 
-    protected override void Read(BinaryReader reader)
+    protected sealed override void Read(BinaryReader reader)
     {
         Elements.AddRange(MessagePackSerializer.Deserialize<List<T>>(reader.BaseStream));
     }

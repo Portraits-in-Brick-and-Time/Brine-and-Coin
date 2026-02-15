@@ -21,7 +21,7 @@ internal abstract class CustomSection(ElfFile file)
     /// <summary>
     /// Prepares a new instance of the <see cref="CustomSection"/> class for writing.
     /// </summary>
-    public void PrepareForWriting(CustomSections customSections)
+    public virtual void PrepareForWriting(CustomSections customSections)
     {
         CustomSections = customSections;
 
@@ -37,7 +37,7 @@ internal abstract class CustomSection(ElfFile file)
     /// <summary>
     /// Prepares a new instance of the <see cref="CustomSection"/> class for reading
     /// </summary>
-    public void PrepareForReading(CustomSections customSections)
+    public virtual void PrepareForReading(CustomSections customSections)
     {
         Section = (ElfStreamSection)file.Sections.First(_ => _.Name.Value == Name);
         CustomSections = customSections;
