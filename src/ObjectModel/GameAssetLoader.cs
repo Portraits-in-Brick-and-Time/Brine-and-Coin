@@ -55,10 +55,20 @@ public class GameAssetLoader
         LoadAttributes();
         LoadItems();
         LoadCharacters();
+        LoadFunctions();
 
         // Then build dependent components
         LoadRooms();
         LoadRegions();
+    }
+
+    private void LoadFunctions()
+    {
+        foreach (var funcDef in customSections.FunctionDefinitionsSection.Elements)
+        {
+            var evaluator = Locator.Current.GetService<Evaluator>();
+            evaluator.RootScope.AddCustomFunction(funcDef.Name, funcDef.Parameters, funcDef.Action);
+        }
     }
 
     private Overworld BuildWorld()
