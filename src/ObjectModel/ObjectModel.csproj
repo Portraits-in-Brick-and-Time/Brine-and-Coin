@@ -11,6 +11,7 @@
     <PackageReference Include="LibObjectFile" Version="2.1.0" />
     <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="NetAF" Version="3.11.4" />
+    <PackageReference Include="Silverfly" Version="1.7.0" />
     <PackageReference Include="Splat" Version="19.2.1" />
   </ItemGroup>
 
