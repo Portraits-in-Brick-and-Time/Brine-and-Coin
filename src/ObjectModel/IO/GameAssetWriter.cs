@@ -57,6 +57,7 @@ public class GameAssetWriter : IDisposable
     {
         var funcDef = new FuncDefModel
         {
+            Name = name,
             Parameters = definition.GetField("params")
                             .GetArray()
                             .Select(_ => _.GetString()).ToArray()
