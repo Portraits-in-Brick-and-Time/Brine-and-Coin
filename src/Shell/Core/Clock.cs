@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using NetAF.Commands;
-using NetAF.Logging.Events;
+using NetAF.Events;
 using NetAF.Logic;
 using ObjectModel.Evaluation;
 using Splat;

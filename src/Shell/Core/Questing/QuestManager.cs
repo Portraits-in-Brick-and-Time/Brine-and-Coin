@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using NetAF.Commands;
-using NetAF.Logging.Events;
+using NetAF.Events;
 using NetAF.Logic;
 using Splat;
 

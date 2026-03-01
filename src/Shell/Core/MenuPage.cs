@@ -1,6 +1,6 @@
 using System;
 using BrineAndCoin.Menu;
-using NetAF.Logging.Events;
+using NetAF.Events;
 using Spectre.Console;
 
 namespace BrineAndCoin.Core;
