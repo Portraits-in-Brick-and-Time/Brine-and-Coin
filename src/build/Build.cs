@@ -59,13 +59,13 @@ class BuildFile : NukeBuild, IHazGitVersion, IHazConfiguration
             var assetsDir = Solution.BrineAndCoin.Directory / "Assets";
             if (!Directory.Exists(assetsDir))
             {
-                Directory.CreateDirectory(assetsDir);
+                Directory.CreateDirectory(assetsDir!);
             }
 
             var assetPath = assetsDir / AssetsFilename;
             if (!File.Exists(assetPath))
             {
-                File.Create(assetPath).Close();
+                File.Create(assetPath!).Close();
             }
 
             try
