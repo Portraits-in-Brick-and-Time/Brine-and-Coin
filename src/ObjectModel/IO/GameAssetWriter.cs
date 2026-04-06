@@ -29,6 +29,7 @@ public class GameAssetWriter : IDisposable
 
     static GameAssetWriter() {
         Parser.DefineCustomCodeFragment(typeof(ItemDefinition));
+        Parser.DefineCustomCodeFragment(typeof(AttributeDefinition));
     }
 
     public GameAssetWriter(Stream outputStream)
@@ -42,9 +43,7 @@ public class GameAssetWriter : IDisposable
 
         _customSections = new(_file);
 
-        _definitionWriters["attributes"] = WriteAttribute;
         _definitionWriters["characters"] = WriteCharacter;
-        _definitionWriters["items"] = WriteItem;
         _definitionWriters["rooms"] = WriteRoom;
         _definitionWriters["regions"] = WriteRegion;
         _definitionWriters["quests"] = WriteQuest;
@@ -139,18 +138,17 @@ public class GameAssetWriter : IDisposable
 
     private readonly Dictionary<string, Action<string, HoconObject>> _definitionWriters = [];
 
-    public void WriteObjects(string defintiionFile)
+    public void WriteObjects(string defintionFile)
     {
-        if (defintiionFile.EndsWith("items.conf"))
+        if (defintionFile.EndsWith("items.conf") 
+        || defintionFile.EndsWith("attributes.conf"))
         {
-            _definitionContext.Eval(File.ReadAllText(defintiionFile));
-
-
+            _definitionContext.Eval(File.ReadAllText(defintionFile));
         }
         PropagateModels();
         return;
 
-        var config = HoconParser.Parse(File.ReadAllText(defintiionFile));
+        var config = HoconParser.Parse(File.ReadAllText(defintionFile));
 
         foreach (var (sectionName, def) in config.AsEnumerable())
         {
@@ -182,6 +180,10 @@ public class GameAssetWriter : IDisposable
             {
                 _customSections.ItemsSection.Elements.Add(item);
             }
+            else if (_definitionContext.GetVariable(v).Value is AttributeModel attribute)
+            {
+                _customSections.AttributesSection.Elements.Add(attribute);
+            }
         }
     }
 
@@ -202,31 +204,6 @@ public class GameAssetWriter : IDisposable
         }
     }
 
-    private void ApplyAttributes(HoconObject obj, GameObjectModel model)
-    {
-        if (!obj.ContainsKey("attributes"))
-        {
-            return;
-        }
-
-        foreach (var (attrName, attrValue) in obj.GetField("attributes").GetObject().AsEnumerable())
-        {
-            model.Attributes.Add(attrName, int.Parse(attrValue.GetString()));
-        }
-    }
-
-    private void ApplyCommands(HoconObject obj, GameObjectModel model)
-    {
-        if (!obj.ContainsKey("commands"))
-        {
-            return;
-        }
-
-        foreach (var name in obj.GetField("commands").GetArray())
-        {
-            model.Commands.Add(new ModelRef(name.GetString()));
-        }
-    }
 
     private void ApplyInventory(HoconObject obj, IItemModel model)
     {
@@ -261,9 +238,7 @@ public class GameAssetWriter : IDisposable
 
         var model = new CharacterModel(name, description, isNPC);
 
-        ApplyAttributes(obj, model);
         ApplyInventory(obj, model);
-        ApplyCommands(obj, model);
 
         _customSections.CharactersSection.Elements.Add(model);
     }
@@ -277,8 +252,6 @@ public class GameAssetWriter : IDisposable
             IsPlayerVisible = GetOptionalFieldValue<bool>(obj, "visible", true)
         };
 
-        ApplyAttributes(obj, model);
-        ApplyCommands(obj, model);
         ApplyCode(obj, model.OnInteraction, "on_interaction");
 
         _customSections.ItemsSection.Elements.Add(model);
@@ -290,13 +263,11 @@ public class GameAssetWriter : IDisposable
 
         var model = new RoomModel(name, description);
 
-        ApplyAttributes(obj, model);
         ApplyInventory(obj, model);
         ApplyNpcs(obj, model);
         ApplyExits(obj, model);
         ApplyCode(obj, model.OnEnter, "on_enter");
         ApplyCode(obj, model.OnExit, "on_exit");
-        ApplyCommands(obj, model);
 
         _customSections.RoomsSection.Elements.Add(model);
     }
@@ -364,23 +335,7 @@ public class GameAssetWriter : IDisposable
             model.StartRoom = value.GetString();
         }
 
-        ApplyAttributes(obj, model);
-        ApplyCommands(obj, model);
-
         _customSections.RegionsSection.Elements.Add(model);
-    }
-
-    private void WriteAttribute(string name, HoconObject obj)
-    {
-        var model = new AttributeModel(
-             name,
-             obj.GetField("description").GetString(),
-             GetOptionalFieldValue<int>(obj, "min"),
-             GetOptionalFieldValue<int>(obj, "max"),
-             obj.GetField("visible").GetString() == "true"
-        );
-
-        _customSections.AttributesSection.Elements.Add(model);
     }
 
     private T GetOptionalFieldValue<T>(HoconObject obj, string fieldName, T defaultValue = default)

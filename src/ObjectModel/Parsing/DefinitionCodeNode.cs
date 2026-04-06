@@ -1,6 +1,11 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NiL.JS.BaseLibrary;
 using NiL.JS.Core;
+using NiL.JS.Expressions;
+using NiL.JS.Extensions;
 using ObjectModel.Models;
 using ObjectModel.Referencing;
 
@@ -87,202 +92,145 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
         return true;
     }
 
-    protected static bool ParsePropertyPrefix(ParseInfo state, ref int position, string name, string expectedName)
+    protected static bool ParseProperty(ParseInfo state, ref int position, out string name, out object value)
     {
-        if (name != expectedName)
+        // Parse property name
+        int start = position;
+        while (position < state.Code.Length && (char.IsLetterOrDigit(state.Code[position]) || state.Code[position] == '_'))
         {
-            return false;
+            position++;
         }
 
+        if (start == position)
+        {
+            throw new JSException(new SyntaxError("Expected property name at " + CodeCoordinates.FromTextPosition(state.Code, position, 3)));
+        }
+
+        name = state.Code[start..position];
+
+        SkipWhitespace(state.Code, ref position);
+
+        // nested block
+        if (Parser.Validate(state.Code, "{", ref position))
+        {
+            if (ParseProperties(state, ref position, out var nestedProperties))
+            {
+                value = nestedProperties;
+                return true;
+            }
+        }
+
+        // Parse simple property
         if (!Parser.Validate(state.Code, "=", ref position))
         {
             throw new JSException(new SyntaxError($"Expected \"=\" at {CodeCoordinates.FromTextPosition(state.Code, position, 6)}"));
         }
         SkipWhitespace(state.Code, ref position);
 
+        value = UnMarshal(ExpressionTree.Parse(state, ref position).Evaluate(Context.CurrentGlobalContext));
         return true;
     }
 
-    protected static Dictionary<ModelRef, int> ParseAttributes(ParseInfo state, ref int position)
+    private static object UnMarshal(JSValue value)
     {
-        var attributes = new Dictionary<ModelRef, int>();
-        SkipWhitespace(state.Code, ref position);
-        if (!Parser.Validate(state.Code, "{", ref position))
+        if (value is NiL.JS.BaseLibrary.Array arr)
         {
-            throw new JSException(new SyntaxError("Expected \"{\" for attributes at " + CodeCoordinates.FromTextPosition(state.Code, position, 8)));
+            return arr.Select(k => UnMarshal(k.Value)).ToList();
         }
 
+        return value.Value;
+    }
+
+    protected static bool ParseProperties(ParseInfo state, ref int position, out Dictionary<string, object> properties)
+    {
+        properties = [];
+
+        // Parse properties until closing brace
         while (position < state.Code.Length)
         {
             SkipWhitespace(state.Code, ref position);
 
+            // Check for closing brace
             if (Parser.Validate(state.Code, "}", ref position))
             {
                 break;
             }
 
-            // Parse attribute name
-            var start = position;
-            while (position < state.Code.Length && (char.IsLetterOrDigit(state.Code[position]) || state.Code[position] == '_'))
+            if (ParseProperty(state, ref position, out var propertyName, out var propertyValue))
             {
-                position++;
-            }
-
-            if (start == position)
-            {
-                throw new JSException(new SyntaxError("Expected attribute name at " + CodeCoordinates.FromTextPosition(state.Code, position, 9)));
-            }
-
-            string attrName = state.Code[start..position];
-            SkipWhitespace(state.Code, ref position);
-
-            if (!Parser.Validate(state.Code, "=", ref position))
-            {
-                throw new JSException(new SyntaxError("Expected \"=\" after attribute name at " + CodeCoordinates.FromTextPosition(state.Code, position, 10)));
+                properties[propertyName] = propertyValue;
             }
 
             SkipWhitespace(state.Code, ref position);
 
-            // Parse attribute value (integer)
-            start = position;
-            if (state.Code[position] == '-')
-            {
-                position++;
-            }
-            while (position < state.Code.Length && char.IsDigit(state.Code[position]))
-            {
-                position++;
-            }
-
-            if (start == position || (start + 1 == position && state.Code[start] == '-'))
-            {
-                throw new JSException(new SyntaxError("Expected integer value for attribute at " + CodeCoordinates.FromTextPosition(state.Code, position, 11)));
-            }
-
-            if (int.TryParse(state.Code[start..position], out var value))
-            {
-                attributes[attrName] = value;
-            }
-
-            SkipWhitespace(state.Code, ref position);
+            // Handle optional comma
             if (position < state.Code.Length && state.Code[position] == ',')
             {
                 position++;
             }
         }
 
-        return attributes;
+        return true;
     }
 
-    protected static List<string> ParseCommands(ParseInfo state, ref int position)
+    protected static T GetPropertyValue<T>(Dictionary<string, object> dict, string path, T defaultValue = default)
     {
-        var commands = new List<string>();
+        var parts = path.Split('.');
+        object current = dict;
 
-        SkipWhitespace(state.Code, ref position);
-        if (!Parser.Validate(state.Code, "=", ref position))
+        foreach (var part in parts)
         {
-            throw new JSException(new SyntaxError("Expected \"=\" after commands at " + CodeCoordinates.FromTextPosition(state.Code, position, 12)));
-        }
-
-        SkipWhitespace(state.Code, ref position);
-        if (!Parser.Validate(state.Code, "[", ref position))
-        {
-            throw new JSException(new SyntaxError("Expected \"[\" for commands array at " + CodeCoordinates.FromTextPosition(state.Code, position, 13)));
-        }
-
-        while (position < state.Code.Length)
-        {
-            SkipWhitespace(state.Code, ref position);
-
-            if (Parser.Validate(state.Code, "]", ref position))
+            if (current is Dictionary<string, object> currentDict && currentDict.TryGetValue(part, out var value))
             {
-                break;
-            }
-
-            var start = position;
-            if (Parser.ValidateString(state.Code, ref position, false))
-            {
-                commands.Add(state.Code[start..position]);
+                current = value;
             }
             else
             {
-                throw new JSException(new SyntaxError("Expected string in commands array at " + CodeCoordinates.FromTextPosition(state.Code, position, 14)));
-            }
-
-            SkipWhitespace(state.Code, ref position);
-            if (position < state.Code.Length && state.Code[position] == ',')
-            {
-                position++;
+                return defaultValue;
             }
         }
 
-        return commands;
+        return ConvertToType<T>(current, defaultValue);
     }
 
-
-    protected static void SkipProperty(string code, ref int position)
+    private static T ConvertToType<T>(object value, T defaultValue)
     {
-        SkipWhitespace(code, ref position);
-        if (position < code.Length && code[position] == '=')
+        if (value == null)
+            return defaultValue;
+
+        var targetType = typeof(T);
+
+        // Handle List types
+        if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(List<>))
         {
-            position++;
-            SkipWhitespace(code, ref position);
-            if (position < code.Length && code[position] == '"')
+            var elementType = targetType.GetGenericArguments()[0];
+            if (value is IEnumerable<object> list)
             {
-                Parser.ValidateString(code, ref position, false);
-            }
-            else if (position < code.Length && code[position] == '[')
-            {
-                SkipArray(code, ref position);
-            }
-            else if (position < code.Length && code[position] == '{')
-            {
-                SkipNestedStructure(code, ref position);
-            }
-            else
-            {
-                // Skip until whitespace
-                while (position < code.Length && !char.IsWhiteSpace(code[position]))
+                try
                 {
-                    position++;
+                    var convertedList = (IList)Activator.CreateInstance(targetType);
+                    foreach (var item in list)
+                    {
+                        var convertedItem = Convert.ChangeType(item, elementType);
+                        convertedList.Add(convertedItem);
+                    }
+                    return (T)convertedList;
+                }
+                catch
+                {
+                    return defaultValue;
                 }
             }
         }
-        else if (position < code.Length && code[position] == '{')
+
+        // Handle simple types
+        try
         {
-            SkipNestedStructure(code, ref position);
+            return (T)Convert.ChangeType(value, targetType);
         }
-    }
-
-    private static void SkipArray(string code, ref int position)
-    {
-        if (!Parser.Validate(code, "[", ref position))
-            return;
-
-        int bracketCount = 1;
-        while (position < code.Length && bracketCount > 0)
+        catch
         {
-            if (code[position] == '[')
-                bracketCount++;
-            else if (code[position] == ']')
-                bracketCount--;
-            position++;
-        }
-    }
-
-    protected static void SkipNestedStructure(string code, ref int position)
-    {
-        if (!Parser.Validate(code, "{", ref position))
-            return;
-
-        int braceCount = 1;
-        while (position < code.Length && braceCount > 0)
-        {
-            if (code[position] == '{')
-                braceCount++;
-            else if (code[position] == '}')
-                braceCount--;
-            position++;
+            return defaultValue;
         }
     }
 }
