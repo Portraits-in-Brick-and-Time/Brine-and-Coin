@@ -30,6 +30,7 @@ public class GameAssetWriter : IDisposable
     static GameAssetWriter() {
         Parser.DefineCustomCodeFragment(typeof(ItemDefinition));
         Parser.DefineCustomCodeFragment(typeof(AttributeDefinition));
+        Parser.DefineCustomCodeFragment(typeof(MetaDefinition));
     }
 
     public GameAssetWriter(Stream outputStream)
@@ -141,7 +142,8 @@ public class GameAssetWriter : IDisposable
     public void WriteObjects(string defintionFile)
     {
         if (defintionFile.EndsWith("items.conf") 
-        || defintionFile.EndsWith("attributes.conf"))
+        || defintionFile.EndsWith("attributes.conf")
+        || defintionFile.EndsWith("meta.conf"))
         {
             _definitionContext.Eval(File.ReadAllText(defintionFile));
         }
@@ -152,12 +154,6 @@ public class GameAssetWriter : IDisposable
 
         foreach (var (sectionName, def) in config.AsEnumerable())
         {
-            if (sectionName == "meta")
-            {
-                WriteMeta(def.GetObject());
-                continue;
-            }
-
             if (_definitionWriters.TryGetValue(sectionName, out var writer))
             {
                 foreach (var (attrName, attrDef) in def.GetObject().AsEnumerable())
@@ -184,26 +180,15 @@ public class GameAssetWriter : IDisposable
             {
                 _customSections.AttributesSection.Elements.Add(attribute);
             }
-        }
-    }
-
-    private void WriteMeta(HoconObject hoconObject, string prefix = "")
-    {
-        foreach (var (key, value) in hoconObject.AsEnumerable())
-        {
-            string fullKey = string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
-
-            if (value.Type == HoconType.Object)
+            else if (_definitionContext.GetVariable(v).Value is MetaModel meta)
             {
-                WriteMeta(value.GetObject(), fullKey);
-            }
-            else
-            {
-                _customSections.MetaSection.Properties[fullKey] = value.GetString();
+                foreach (var (key, value) in meta.Properties)
+                {
+                    _customSections.MetaSection.Properties[$"{meta.Name}.{key}"] = value;
+                }
             }
         }
     }
-
 
     private void ApplyInventory(HoconObject obj, IItemModel model)
     {

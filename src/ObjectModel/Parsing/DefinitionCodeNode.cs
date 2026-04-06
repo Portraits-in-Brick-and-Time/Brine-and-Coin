@@ -5,9 +5,7 @@ using System.Linq;
 using NiL.JS.BaseLibrary;
 using NiL.JS.Core;
 using NiL.JS.Expressions;
-using NiL.JS.Extensions;
 using ObjectModel.Models;
-using ObjectModel.Referencing;
 
 namespace ObjectModel.Parsing;
 
@@ -33,34 +31,6 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
     {
         while (position < code.Length && (char.IsWhiteSpace(code, position) || code[position] == '\n' || code[position] == '\r'))
             position++;
-    }
-
-    protected static bool ParseBoolean(ParseInfo state, ref int position, out bool value)
-    {
-        if (Parser.Validate(state.Code, "true", ref position))
-        {
-            value = true;
-            return true;
-        }
-        else if (Parser.Validate(state.Code, "false", ref position))
-        {
-            value = false;
-            return true;
-        }
-
-        throw new JSException(new SyntaxError("Expected boolean at " + CodeCoordinates.FromTextPosition(state.Code, position, 7)));
-    }
-
-    protected static bool ParseString(ParseInfo state, ref int position, out string value)
-    {
-        int start = position;
-        if (Parser.ValidateString(state.Code, ref position, false))
-        {
-            value = state.Code[(start + 1)..(position - 1)];
-            return true;
-        }
-
-        throw new JSException(new SyntaxError($"Expected string value at {CodeCoordinates.FromTextPosition(state.Code, position, 5)}"));
     }
 
     protected static bool ParseHeaderWithName(string defintionName, out string parsedName, ref int position, ParseInfo state)
