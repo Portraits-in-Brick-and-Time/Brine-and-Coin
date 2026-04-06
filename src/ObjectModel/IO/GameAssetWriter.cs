@@ -10,9 +10,11 @@ using LibObjectFile.Elf;
 using MessagePack;
 using MessagePack.Resolvers;
 using NetAF.Assets.Locations;
+using NiL.JS.Core;
 using ObjectModel.Evaluation;
 using ObjectModel.Models;
 using ObjectModel.Models.Code;
+using ObjectModel.Parsing;
 using ObjectModel.Referencing;
 
 public class GameAssetWriter : IDisposable
@@ -22,6 +24,12 @@ public class GameAssetWriter : IDisposable
     private readonly ElfStringTable _strTable = new();
     private readonly ElfSymbolTable _symbolTable = new();
     private readonly CustomSections _customSections;
+
+    private readonly Context _definitionContext = new();
+
+    static GameAssetWriter() {
+        Parser.DefineCustomCodeFragment(typeof(ItemDefinition));
+    }
 
     public GameAssetWriter(Stream outputStream)
     {
@@ -133,6 +141,15 @@ public class GameAssetWriter : IDisposable
 
     public void WriteObjects(string defintiionFile)
     {
+        if (defintiionFile.EndsWith("items.conf"))
+        {
+            _definitionContext.Eval(File.ReadAllText(defintiionFile));
+
+
+        }
+        PropagateModels();
+        return;
+
         var config = HoconParser.Parse(File.ReadAllText(defintiionFile));
 
         foreach (var (sectionName, def) in config.AsEnumerable())
@@ -154,6 +171,17 @@ public class GameAssetWriter : IDisposable
             }
 
             throw new NotImplementedException($"No definition writer found for definition section '{sectionName}'");
+        }
+    }
+
+    private void PropagateModels()
+    {
+        foreach (var v in _definitionContext)
+        {
+            if (_definitionContext.GetVariable(v).Value is ItemModel item)
+            {
+                _customSections.ItemsSection.Elements.Add(item);
+            }
         }
     }
 

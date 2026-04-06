@@ -18,4 +18,9 @@ internal class ItemModel : GameObjectModel
         Name = name;
         Description = description;
     }
+
+    public ItemModel()
+    {
+        
+    }
 }

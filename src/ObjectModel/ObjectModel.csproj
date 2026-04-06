@@ -11,7 +11,7 @@
     <PackageReference Include="LibObjectFile" Version="2.1.0" />
     <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="NetAF" Version="3.13.5" />
-    <PackageReference Include="Silverfly" Version="1.7.0" />
+    <PackageReference Include="NiL.JS" Version="2.6.1721" />
     <PackageReference Include="Splat" Version="19.3.1" />
   </ItemGroup>
 
