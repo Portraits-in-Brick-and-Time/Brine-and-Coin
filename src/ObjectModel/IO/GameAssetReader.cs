@@ -9,7 +9,7 @@ using ObjectModel.Referencing;
 
 internal class GameAssetReader
 {
-    private ElfFile _file;
+    private readonly ElfFile _file;
 
     public readonly ElfSymbolTable SymbolTable;
     public readonly CustomSections CustomSections;

@@ -6,8 +6,6 @@ using ObjectModel.Models.Code;
 namespace ObjectModel.Evaluation;
 
 [Union(0, typeof(ValueModel))]
-[Union(1, typeof(VariableDefinitonModel))]
-[Union(2, typeof(CallFuncModel))]
 public interface IEvaluable
 {
     object Evaluate(Evaluator evaluator, Scope scope);

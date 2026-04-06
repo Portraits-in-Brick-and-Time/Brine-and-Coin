@@ -71,7 +71,7 @@ public class GameAssetWriter : IDisposable
                             .Select(_ => _.GetString()).ToArray()
         };
 
-        ApplyCode(definition, funcDef.Action, "do");
+        //ApplyCode(definition, funcDef.Action, "do");
 
         _customSections.FunctionDefinitionsSection.Elements.Add(funcDef);
     }
@@ -230,16 +230,9 @@ public class GameAssetWriter : IDisposable
 
     private void WriteItem(string name, HoconObject obj)
     {
-        var description = obj.GetField("description").GetString();
 
-        var model = new ItemModel(name, description)
-        {
-            IsPlayerVisible = GetOptionalFieldValue<bool>(obj, "visible", true)
-        };
+     //   ApplyCode(obj, model.OnInteraction, "on_interaction");
 
-        ApplyCode(obj, model.OnInteraction, "on_interaction");
-
-        _customSections.ItemsSection.Elements.Add(model);
     }
 
     private void WriteRoom(string name, HoconObject obj)
@@ -251,8 +244,8 @@ public class GameAssetWriter : IDisposable
         ApplyInventory(obj, model);
         ApplyNpcs(obj, model);
         ApplyExits(obj, model);
-        ApplyCode(obj, model.OnEnter, "on_enter");
-        ApplyCode(obj, model.OnExit, "on_exit");
+        //ApplyCode(obj, model.OnEnter, "on_enter");
+        //ApplyCode(obj, model.OnExit, "on_exit");
 
         _customSections.RoomsSection.Elements.Add(model);
     }
@@ -278,26 +271,6 @@ public class GameAssetWriter : IDisposable
                 Description = description,
                 IsLocked = isLocked
             });
-        }
-    }
-
-    private void ApplyCode(HoconObject obj, List<IEvaluable> code, string objName)
-    {
-        if (!obj.TryGetValue(objName, out HoconField value))
-        {
-            return;
-        }
-
-        foreach (var c in value.GetObject())
-        {
-            if (c.Value.Type == HoconType.Object)
-            {
-                code.Add(CallFuncModel.FromObject(c));
-            }
-            else
-            {
-                code.Add(VariableDefinitonModel.FromObject(c));
-            }
         }
     }
 
@@ -360,10 +333,12 @@ public class GameAssetWriter : IDisposable
         var diagnostics = _file.Verify();
         if (diagnostics.HasErrors)
         {
+            var exceptions = new List<Exception>();
             foreach (var message in diagnostics.Messages)
             {
-                Console.WriteLine(message);
+                exceptions.Add(new Exception(message.Message));
             }
+            throw new AggregateException(exceptions);
         }
     }
 
