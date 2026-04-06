@@ -30,6 +30,7 @@ internal sealed class ItemDefinition : DefinitionCodeNode<ItemModel>
         {
             AddPropertiesToModel(item.Model, properties);
             item.Model.IsPlayerVisible = GetPropertyValue(properties, "visible", true);
+            item.Model.OnInteraction = GetPropertyValue<string>(properties, "on_interaction");
         }
 
         return item;

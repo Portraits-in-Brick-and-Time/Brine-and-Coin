@@ -18,10 +18,10 @@ internal class RoomModel : GameObjectModel, IItemModel
     public List<ExitModel> Exits { get; set; } = [];
 
     [Key(7)]
-    public List<IEvaluable> OnEnter { get; set; } = [];
+    public string OnEnter { get; set; } = string.Empty;
 
     [Key(8)]
-    public List<IEvaluable> OnExit { get; set; } = [];
+    public string OnExit { get; set; } = string.Empty;
 
     public RoomModel(string name, string description)
     {

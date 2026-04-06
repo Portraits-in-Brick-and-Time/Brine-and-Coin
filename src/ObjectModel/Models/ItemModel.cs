@@ -11,7 +11,7 @@ internal class ItemModel : GameObjectModel
     public bool IsPlayerVisible { get; set; }
 
     [Key(5)]
-    public List<IEvaluable> OnInteraction { get; set; } = [];
+    public string OnInteraction { get; set; } = string.Empty;
 
     public ItemModel(string name, string description)
     {

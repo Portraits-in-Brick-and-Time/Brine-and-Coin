@@ -5,6 +5,7 @@ using System.Linq;
 using NiL.JS.BaseLibrary;
 using NiL.JS.Core;
 using NiL.JS.Expressions;
+using NiL.JS.Statements;
 using ObjectModel.Models;
 
 namespace ObjectModel.Parsing;
@@ -83,6 +84,13 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
         // nested block
         if (Parser.Validate(state.Code, "{", ref position))
         {
+            if (name.StartsWith("on_"))
+            {
+                value = ParseCodeBlock(state, ref position);
+
+                return true;
+            }
+
             if (ParseProperties(state, ref position, out var nestedProperties))
             {
                 value = nestedProperties;
@@ -99,6 +107,20 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
 
         value = UnMarshal(ExpressionTree.Parse(state, ref position).Evaluate(Context.CurrentGlobalContext));
         return true;
+    }
+
+    private static string ParseCodeBlock(ParseInfo state, ref int position)
+    {
+        position--; // step back to include the opening brace in the code block parsing
+        var parseMethod = typeof(CodeBlock).GetMethod(
+            "Parse",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public,
+            null,
+            [typeof(ParseInfo), typeof(int).MakeByRefType()],
+            null);
+
+        var args = new object[] { state, position };
+        return (parseMethod.Invoke(null, args) as CodeBlock).Code;
     }
 
     private static object UnMarshal(JSValue value)

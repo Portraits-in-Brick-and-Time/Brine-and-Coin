@@ -8,8 +8,8 @@ using NetAF.Assets.Locations;
 using NetAF.Commands;
 using NetAF.Commands.Persistence;
 using NetAF.Conversations;
-using NetAF.Conversations.Instructions;
-using ObjectModel.Evaluation;
+using NiL.JS;
+using NiL.JS.Core;
 using ObjectModel.IO;
 using ObjectModel.Models;
 using ObjectModel.Referencing;
@@ -25,11 +25,12 @@ public class GameAssetLoader
     private readonly List<NonPlayableCharacter> _npcs = [];
     private readonly List<Room> _rooms = [];
     private readonly List<Region> _regions = [];
-    private readonly CustomSections customSections;
+    private readonly CustomSections _customSections;
+    private Module _module;
 
     private GameAssetLoader(CustomSections customSections)
     {
-        this.customSections = customSections;
+        this._customSections = customSections;
     }
 
     public static Overworld LoadFile(out PlayableCharacter[] players)
@@ -55,31 +56,28 @@ public class GameAssetLoader
         LoadAttributes();
         LoadItems();
         LoadCharacters();
-        LoadFunctions();
+        LoadAndExecuteCode();
 
         // Then build dependent components
         LoadRooms();
         LoadRegions();
     }
 
-    private void LoadFunctions()
+    private void LoadAndExecuteCode()
     {
-        foreach (var funcDef in customSections.FunctionDefinitionsSection.Elements)
-        {
-            var evaluator = Locator.Current.GetService<Evaluator>();
-            evaluator.RootScope.AddCustomFunction(funcDef.Name, funcDef.Parameters, funcDef.Action);
-        }
+        _module = new Module(_customSections.CodeSection.Code);
+        _module.Run();
     }
 
     private Overworld BuildWorld()
     {
-        var worldName = customSections.MetaSection.Properties["world.name"];
-        var worldDescription = customSections.MetaSection.Properties["world.description"];
+        var worldName = _customSections.MetaSection.Properties["world.name"];
+        var worldDescription = _customSections.MetaSection.Properties["world.description"];
 
         var overworld = new Overworld(worldName.ToString(), worldDescription.ToString(),
             commands: CreatePersistentCommands());
 
-        foreach (var region in customSections.RegionsSection.Elements)
+        foreach (var region in _customSections.RegionsSection.Elements)
         {
             overworld.AddRegion(GetRegionByName(region.Name));
         }
@@ -138,7 +136,7 @@ public class GameAssetLoader
 
     private void LoadAttributes()
     {
-        foreach (var attrModel in customSections.AttributesSection.Elements)
+        foreach (var attrModel in _customSections.AttributesSection.Elements)
         {
             _attributes.Add(new Attribute(attrModel.Name, attrModel.Description, attrModel.Min, attrModel.Max, attrModel.Visible));
         }
@@ -146,7 +144,7 @@ public class GameAssetLoader
 
     private void LoadItems()
     {
-        foreach (var itemModel in customSections.ItemsSection.Elements)
+        foreach (var itemModel in _customSections.ItemsSection.Elements)
         {
             var item = new Item(itemModel.Name, itemModel.Description, commands: GetCommands(itemModel),
                 interaction: GetInteraction(itemModel.OnInteraction))
@@ -155,29 +153,26 @@ public class GameAssetLoader
             };
 
             ApplyAttributes(item, itemModel);
-            
+
             _items.Add(item);
         }
     }
 
-    private InteractionCallback GetInteraction(List<IEvaluable> onInteraction)
+    private InteractionCallback GetInteraction(string onInteraction)
     {
-        if (onInteraction.Count == 0)
-        {
-            return null;
-        }
-
         return new(item =>
         {
-            var interaction = EvaluateCode<Interaction>(onInteraction);
+            var context = new Context(_module.Context);
+            context.DefineConstant("item", context.GlobalContext.ProxyValue(item));
+            var interaction = (InteractionResult)context.Eval(onInteraction).Value;
 
-            return new Interaction(interaction.Result, item, interaction.Description);
+            return new Interaction(interaction, item, null);
         });
     }
 
     private void LoadRegions()
     {
-        foreach (var regionModel in customSections.RegionsSection.Elements)
+        foreach (var regionModel in _customSections.RegionsSection.Elements)
         {
             var region = new Region(regionModel.Name, regionModel.Description, commands: GetCommands(regionModel));
             foreach (var (roomRef, (x, y, z)) in regionModel.Rooms)
@@ -197,7 +192,7 @@ public class GameAssetLoader
 
     private void LoadRooms()
     {
-        foreach (var roomModel in customSections.RoomsSection.Elements)
+        foreach (var roomModel in _customSections.RoomsSection.Elements)
         {
             var room = new Room(roomModel.Name, roomModel.Description,
                 commands: GetCommands(roomModel),
@@ -227,32 +222,15 @@ public class GameAssetLoader
         return [.. exits];
     }
 
-    private RoomTransitionCallback ApplyRoomTransition(List<IEvaluable> code)
+    private RoomTransitionCallback ApplyRoomTransition(string code)
     {
-        if (code.Count == 0)
-        {
-            return null;
-        }
-
         return new(transition =>
         {
-            Evaluator evaluator = Locator.Current.GetService<Evaluator>();
-            var scope = evaluator.RootScope.NewSubScope();
-            //Todo: add transition to scope when mutliple value types supported
-            //scope.AddOrSet("transition", transition);
-            return new(EvaluateCode<Reaction>(code, scope), true);
+            var context = new Context(_module.Context);
+            context.DefineConstant("transition", context.GlobalContext.ProxyValue(transition));
+
+            return (RoomTransitionReaction)context.Eval(code).Value;
         });
-    }
-
-    private object EvaluateCode(List<IEvaluable> code, Scope scope = null)
-    {
-        Evaluator evaluator = Locator.Current.GetService<Evaluator>();
-        return evaluator.Evaluate(code, scope ?? evaluator.RootScope);
-    }
-
-    private T EvaluateCode<T>(List<IEvaluable> code, Scope scope = null)
-    {
-        return (T)EvaluateCode(code, scope ?? Locator.Current.GetService<Evaluator>().RootScope);
     }
 
     private void AddNpcs(Room target, RoomModel model)
@@ -266,7 +244,7 @@ public class GameAssetLoader
 
     private void LoadCharacters()
     {
-        foreach (var charModel in customSections.CharactersSection.Elements)
+        foreach (var charModel in _customSections.CharactersSection.Elements)
         {
             var commands = GetCommands(charModel);
             var items = GetItems(charModel).ToArray();

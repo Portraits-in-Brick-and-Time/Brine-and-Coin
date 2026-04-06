@@ -11,9 +11,7 @@ using MessagePack;
 using MessagePack.Resolvers;
 using NetAF.Assets.Locations;
 using NiL.JS.Core;
-using ObjectModel.Evaluation;
 using ObjectModel.Models;
-using ObjectModel.Models.Code;
 using ObjectModel.Parsing;
 using ObjectModel.Referencing;
 
@@ -48,7 +46,6 @@ public class GameAssetWriter : IDisposable
         _definitionWriters["rooms"] = WriteRoom;
         _definitionWriters["regions"] = WriteRegion;
         _definitionWriters["quests"] = WriteQuest;
-        _definitionWriters["functions"] = WriteFunction;
 
         ModelRefFormatter.Instance.SymbolTable = _symbolTable;
         var resolver = CompositeResolver.Create(
@@ -61,6 +58,7 @@ public class GameAssetWriter : IDisposable
             .WithCompression(MessagePackCompression.Lz4Block);
     }
 
+/*
     private void WriteFunction(string name, HoconObject definition)
     {
         var funcDef = new FuncDefModel
@@ -75,6 +73,7 @@ public class GameAssetWriter : IDisposable
 
         _customSections.FunctionDefinitionsSection.Elements.Add(funcDef);
     }
+    */
 
     private void WriteQuest(string name, HoconObject obj)
     {
