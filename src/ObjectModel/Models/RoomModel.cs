@@ -6,7 +6,7 @@ using ObjectModel.Referencing;
 namespace ObjectModel.Models;
 
 [MessagePackObject(AllowPrivate = true)]
-internal class RoomModel : GameObjectModel, IItemModel
+internal class RoomModel : GameObjectModel, IHasItems
 {
     [Key(4)]
     public List<ModelRef> Items { get; set; } = [];

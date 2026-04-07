@@ -25,7 +25,8 @@ public class GameAssetWriter : IDisposable
 
     private readonly Context _definitionContext = new();
 
-    static GameAssetWriter() {
+    static GameAssetWriter()
+    {
         Parser.DefineCustomCodeFragment(typeof(ItemDefinition));
         Parser.DefineCustomCodeFragment(typeof(AttributeDefinition));
         Parser.DefineCustomCodeFragment(typeof(MetaDefinition));
@@ -38,7 +39,7 @@ public class GameAssetWriter : IDisposable
         _file.Add(_strTable);
         _file.FileType = ElfFileType.Core;
         _file.Encoding = ElfEncoding.Lsb;
-        _file.Version = 1;
+        _file.Version = 2;
 
         _customSections = new(_file);
 
@@ -58,22 +59,22 @@ public class GameAssetWriter : IDisposable
             .WithCompression(MessagePackCompression.Lz4Block);
     }
 
-/*
-    private void WriteFunction(string name, HoconObject definition)
-    {
-        var funcDef = new FuncDefModel
+    /*
+        private void WriteFunction(string name, HoconObject definition)
         {
-            Name = name,
-            Parameters = definition.GetField("params")
-                            .GetArray()
-                            .Select(_ => _.GetString()).ToArray()
-        };
+            var funcDef = new FuncDefModel
+            {
+                Name = name,
+                Parameters = definition.GetField("params")
+                                .GetArray()
+                                .Select(_ => _.GetString()).ToArray()
+            };
 
-        //ApplyCode(definition, funcDef.Action, "do");
+            //ApplyCode(definition, funcDef.Action, "do");
 
-        _customSections.FunctionDefinitionsSection.Elements.Add(funcDef);
-    }
-    */
+            _customSections.FunctionDefinitionsSection.Elements.Add(funcDef);
+        }
+        */
 
     private void WriteQuest(string name, HoconObject obj)
     {
@@ -140,7 +141,7 @@ public class GameAssetWriter : IDisposable
 
     public void WriteObjects(string defintionFile)
     {
-        if (defintionFile.EndsWith("items.conf") 
+        if (defintionFile.EndsWith("items.conf")
         || defintionFile.EndsWith("attributes.conf")
         || defintionFile.EndsWith("meta.conf"))
         {
@@ -171,7 +172,7 @@ public class GameAssetWriter : IDisposable
     {
         foreach (var v in _definitionContext)
         {
-           //todo: convert to switch
+            //todo: convert to switch
             if (_definitionContext.GetVariable(v).Value is ItemModel item)
             {
                 _customSections.ItemsSection.Elements.Add(item);
@@ -190,7 +191,7 @@ public class GameAssetWriter : IDisposable
         }
     }
 
-    private void ApplyInventory(HoconObject obj, IItemModel model)
+    private void ApplyInventory(HoconObject obj, IHasItems model)
     {
         if (!obj.ContainsKey("inventory"))
         {
@@ -231,7 +232,7 @@ public class GameAssetWriter : IDisposable
     private void WriteItem(string name, HoconObject obj)
     {
 
-     //   ApplyCode(obj, model.OnInteraction, "on_interaction");
+        //   ApplyCode(obj, model.OnInteraction, "on_interaction");
 
     }
 

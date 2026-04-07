@@ -273,7 +273,7 @@ public class GameAssetLoader
         }
     }
 
-    private void AddItems(IItemContainer target, IItemModel model)
+    private void AddItems(IItemContainer target, IHasItems model)
     {
         foreach (var item in GetItems(model))
         {
@@ -307,7 +307,7 @@ public class GameAssetLoader
         return [.. cmds];
     }
 
-    private IEnumerable<Item> GetItems(IItemModel model)
+    private IEnumerable<Item> GetItems(IHasItems model)
     {
         foreach (var itemRef in model.Items)
         {

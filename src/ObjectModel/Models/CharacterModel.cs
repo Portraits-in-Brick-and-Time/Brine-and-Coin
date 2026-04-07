@@ -5,7 +5,7 @@ using ObjectModel.Referencing;
 namespace ObjectModel.Models;
 
 [MessagePackObject(AllowPrivate = true)]
-internal class CharacterModel : GameObjectModel, IItemModel
+internal class CharacterModel : GameObjectModel, IHasItems
 {
     public CharacterModel(string name, string description, bool isNPC)
     {

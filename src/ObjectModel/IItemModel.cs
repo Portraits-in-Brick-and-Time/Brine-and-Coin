@@ -3,8 +3,7 @@ using ObjectModel.Referencing;
 
 namespace ObjectModel;
 
-// todo: rename to IHasItems
-internal interface IItemModel
+internal interface IHasItems
 {
    List<ModelRef> Items { get; set; }
 }
