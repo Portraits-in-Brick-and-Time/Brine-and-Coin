@@ -34,6 +34,7 @@ internal sealed class ItemDefinition : DefinitionCodeNode<ItemModel>
         return item;
     }
 
+    // todo: move to DefinitionCodeNode
     private static void AddPropertiesToModel(GameObjectModel model, Dictionary<string, object> properties)
     {
         model.Description = GetPropertyValue<string>(properties, "description");
