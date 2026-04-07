@@ -340,6 +340,6 @@ public class GameAssetLoader
             }
         }
 
-        throw new KeyNotFoundException($"Item '{@ref}' not found.");
+        throw new KeyNotFoundException($"'{@ref}' not found.");
     }
 }
