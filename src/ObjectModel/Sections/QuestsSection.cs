@@ -8,5 +8,5 @@ internal class QuestsSection : ModelSection<Models.Quest.QuestModel>
     {
     }
 
-    public override string Name => "quests";
+    public override string Name => ".quests";
 }
