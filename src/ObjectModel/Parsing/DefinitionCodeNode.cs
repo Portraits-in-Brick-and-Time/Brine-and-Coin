@@ -65,6 +65,7 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
 
     protected static bool ParseProperty(ParseInfo state, ref int position, out string name, out object value)
     {
+        // todo: extract to own method to reduce method complexity 
         // Parse property name
         int start = position;
         while (position < state.Code.Length && (char.IsLetterOrDigit(state.Code[position]) || state.Code[position] == '_'))
