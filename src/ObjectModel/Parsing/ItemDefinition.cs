@@ -9,8 +9,6 @@ namespace ObjectModel.Parsing;
 [CustomCodeFragment]
 internal sealed class ItemDefinition : DefinitionCodeNode<ItemModel>
 {
-    public Dictionary<string, CodeNode> OnInteraction { get; set; } = [];
-
     public static bool Validate(string code, int position)
     {
         return Parser.Validate(code, "item", position);
