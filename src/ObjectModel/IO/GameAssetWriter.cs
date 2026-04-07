@@ -171,6 +171,7 @@ public class GameAssetWriter : IDisposable
     {
         foreach (var v in _definitionContext)
         {
+           //todo: convert to switch
             if (_definitionContext.GetVariable(v).Value is ItemModel item)
             {
                 _customSections.ItemsSection.Elements.Add(item);
