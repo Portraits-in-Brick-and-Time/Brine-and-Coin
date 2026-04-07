@@ -7,6 +7,7 @@ using NiL.JS.Core;
 using NiL.JS.Expressions;
 using NiL.JS.Statements;
 using ObjectModel.Models;
+using ObjectModel.Referencing;
 
 namespace ObjectModel.Parsing;
 
@@ -65,20 +66,7 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
 
     protected static bool ParseProperty(ParseInfo state, ref int position, out string name, out object value)
     {
-        // todo: extract to own method to reduce method complexity 
-        // Parse property name
-        int start = position;
-        while (position < state.Code.Length && (char.IsLetterOrDigit(state.Code[position]) || state.Code[position] == '_'))
-        {
-            position++;
-        }
-
-        if (start == position)
-        {
-            throw new JSException(new SyntaxError("Expected property name at " + CodeCoordinates.FromTextPosition(state.Code, position, 3)));
-        }
-
-        name = state.Code[start..position];
+        _ = ParsePropertyName(state, ref position, out name);
 
         SkipWhitespace(state.Code, ref position);
 
@@ -107,6 +95,23 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
         SkipWhitespace(state.Code, ref position);
 
         value = UnMarshal(ExpressionTree.Parse(state, ref position).Evaluate(Context.CurrentGlobalContext));
+        return true;
+    }
+
+    private static bool ParsePropertyName(ParseInfo state, ref int position, out string name)
+    {
+        int start = position;
+        while (position < state.Code.Length && (char.IsLetterOrDigit(state.Code[position]) || state.Code[position] == '_'))
+        {
+            position++;
+        }
+
+        if (start == position)
+        {
+            throw new JSException(new SyntaxError("Expected property name at " + CodeCoordinates.FromTextPosition(state.Code, position, 3)));
+        }
+
+        name = state.Code[start..position];
         return true;
     }
 
@@ -225,5 +230,13 @@ abstract class DefinitionCodeNode<TModel> : CodeNode
         {
             return defaultValue;
         }
+    }
+
+    protected static void AddPropertiesToModel(GameObjectModel model, Dictionary<string, object> properties)
+    {
+        model.Description = GetPropertyValue<string>(properties, "description");
+        model.Commands = GetPropertyValue(properties, "commands", new List<string>());
+        model.Attributes = GetPropertyValue(properties, "attributes", new Dictionary<string, object>())
+            .ToDictionary(k => (ModelRef)k.Key, v => (int)v.Value);
     }
 }

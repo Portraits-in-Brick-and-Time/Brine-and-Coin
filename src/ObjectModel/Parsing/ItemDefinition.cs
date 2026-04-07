@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
 using NiL.JS.Core;
 using ObjectModel.Models;
-using ObjectModel.Referencing;
 
 namespace ObjectModel.Parsing;
 
@@ -32,14 +29,5 @@ internal sealed class ItemDefinition : DefinitionCodeNode<ItemModel>
         }
 
         return item;
-    }
-
-    // todo: move to DefinitionCodeNode
-    private static void AddPropertiesToModel(GameObjectModel model, Dictionary<string, object> properties)
-    {
-        model.Description = GetPropertyValue<string>(properties, "description");
-        model.Commands = GetPropertyValue(properties, "commands", new List<string>());
-        model.Attributes = GetPropertyValue(properties, "attributes", new Dictionary<string, object>())
-            .ToDictionary(k => (ModelRef)k.Key, v => (int)v.Value);
     }
 }

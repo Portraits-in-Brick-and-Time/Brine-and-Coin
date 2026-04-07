@@ -172,21 +172,23 @@ public class GameAssetWriter : IDisposable
     {
         foreach (var v in _definitionContext)
         {
-            //todo: convert to switch
-            if (_definitionContext.GetVariable(v).Value is ItemModel item)
+            switch (_definitionContext.GetVariable(v).Value)
             {
-                _customSections.ItemsSection.Elements.Add(item);
-            }
-            else if (_definitionContext.GetVariable(v).Value is AttributeModel attribute)
-            {
-                _customSections.AttributesSection.Elements.Add(attribute);
-            }
-            else if (_definitionContext.GetVariable(v).Value is MetaModel meta)
-            {
-                foreach (var (key, value) in meta.Properties)
-                {
-                    _customSections.MetaSection.Properties[$"{meta.Name}.{key}"] = value;
-                }
+                case ItemModel item:
+                    _customSections.ItemsSection.Elements.Add(item);
+                    break;
+                case AttributeModel attribute:
+                    _customSections.AttributesSection.Elements.Add(attribute);
+                    break;
+                case MetaModel meta:
+                    {
+                        foreach (var (key, value) in meta.Properties)
+                        {
+                            _customSections.MetaSection.Properties[$"{meta.Name}.{key}"] = value;
+                        }
+
+                        break;
+                    }
             }
         }
     }
