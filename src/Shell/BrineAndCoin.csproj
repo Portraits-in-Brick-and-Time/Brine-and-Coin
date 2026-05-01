@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetAF" Version="3.13.5" />
+    <PackageReference Include="NetAF" Version="3.17.0" />
     <PackageReference Include="SoundFlow" Version="1.4.0" />
-    <PackageReference Include="Spectre.Console" Version="0.54.1-alpha.0.72" />
+    <PackageReference Include="Spectre.Console" Version="0.55.3-alpha.0.7" />
     <PackageReference Include="Splat" Version="19.3.1" />
   </ItemGroup>
   
